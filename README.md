@@ -1,6 +1,11 @@
 # Multi Broadcasts
 Plugin that allows you to send multiple broadcasts at once.
 
+## Configs
+`is_enabled`: Indicates whether this plugin is enabled or not.
+
+`debug`: Indicates whether debug log is printted or not.
+
 ## Commands
 Main command: `/multibroadcast` or `/mbc`. Requires permission `Broadcasting` (RA Permission). 
 
