@@ -9,6 +9,8 @@ Plugin that allows you to send multiple broadcasts at once.
 ## Commands
 Main command: `/multibroadcast` or `/mbc`. Requires permission `Broadcasting` (RA Permission). 
 
+*Note: This plugin also patches and replaces the original broadcaat command*
+
 | Command                                      | Description                           | Returns          |
 |----------------------------------------------|---------------------------------------|------------------|
 | `/mbc add map <duration> <text>`             | Broadcasts a message to all players.  | A group of ids.  |
