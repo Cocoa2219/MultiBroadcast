@@ -53,7 +53,7 @@ public class BroadcastPatch
         Broadcast.BroadcastFlags broadcastFlags;
         bool flag = __instance.HasInputFlag(arguments.At(1), out broadcastFlags, arguments.Count);
         string text2 = RAUtils.FormatArguments(arguments, flag ? 2 : 1);
-        API.MultiBroadcast.AddMapBroadcast(time, text2);
+        var ids = API.MultiBroadcast.AddMapBroadcast(time, text2);
         ServerLogs.AddLog(ServerLogs.Modules.Administrative, string.Format("{0} broadcast text \"{1}\". Duration: {2} seconds. Broadcast Flag: {3}.", new object[]
         {
             sender.LogName,
@@ -61,7 +61,7 @@ public class BroadcastPatch
             text,
             broadcastFlags
         }), ServerLogs.ServerLogType.RemoteAdminActivity_GameChanging, false);
-        response = "Global broadcast sent.";
+        response = $"Added broadcast for all players with id {string.Join(", ", ids)}";
         __result = true;
         return false;
     }
@@ -101,6 +101,7 @@ public class PlayerBroadcastPatch
         StringBuilder stringBuilder = StringBuilderPool.Shared.Rent();
         Broadcast singleton = Broadcast.Singleton;
         int num2 = 0;
+        int[] ids = [];
         foreach (ReferenceHub referenceHub in list)
         {
             if (num2++ != 0)
@@ -108,7 +109,7 @@ public class PlayerBroadcastPatch
                 stringBuilder.Append(", ");
             }
             stringBuilder.Append(referenceHub.LoggedNameFromRefHub());
-            API.MultiBroadcast.AddPlayerBroadcast(Player.Get(referenceHub), num, text2);
+            ids.AddItem(API.MultiBroadcast.AddPlayerBroadcast(Player.Get(referenceHub), num, text2));
         }
         ServerLogs.AddLog(ServerLogs.Modules.Administrative, string.Format("{0} broadcast text \"{1}\" to {2} players. Duration: {3} seconds. Affected players: {4}. Broadcast Flag: {5}.", new object[]
         {
@@ -120,7 +121,7 @@ public class PlayerBroadcastPatch
             broadcastFlags
         }), ServerLogs.ServerLogType.RemoteAdminActivity_GameChanging, false);
         StringBuilderPool.Shared.Return(stringBuilder);
-        response = string.Format("Broadcast sent to {0} players.", num2);
+        response = $"Added broadcast for {num2} players with id {string.Join(", ", ids)}";
         __result = true;
         return false;
     }
