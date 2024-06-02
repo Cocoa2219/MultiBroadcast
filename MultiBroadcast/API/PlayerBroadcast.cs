@@ -2,16 +2,43 @@
 
 namespace MultiBroadcast.API;
 
-public class PlayerBroadcast(Player player, string text, int id, bool onTop)
+/// <summary>
+/// Represents a broadcast that is sent to a player.
+/// </summary>
+public class PlayerBroadcast
 {
-    public Player Player { get; } = player;
-    public string Text { get; set; } = text;
-    public int Id { get; } = id;
-    public bool OnTop { get; } = onTop;
-}
+    /// <summary>
+    /// Gets the player to whom the broadcast is sent.
+    /// </summary>
+    public Player Player { get; }
 
-public class MapBroadcast(int id, int[] ids)
-{
-    public int Id { get; } = id;
-    public int[] Ids { get; } = ids;
+    /// <summary>
+    /// Gets or sets the text of the broadcast.
+    /// </summary>
+    public string Text { get; set; }
+
+    /// <summary>
+    /// Gets the ID of the broadcast.
+    /// </summary>
+    public int Id { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether the broadcast should be displayed on top.
+    /// </summary>
+    public bool OnTop { get; }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="PlayerBroadcast"/> class.
+    /// </summary>
+    /// <param name="player">The player to whom the broadcast is sent.</param>
+    /// <param name="text">The text of the broadcast.</param>
+    /// <param name="id">The ID of the broadcast.</param>
+    /// <param name="onTop">Whether the broadcast should be displayed on top.</param>
+    public PlayerBroadcast(Player player, string text, int id, bool onTop)
+    {
+        Player = player;
+        Text = text;
+        Id = id;
+        OnTop = onTop;
+    }
 }

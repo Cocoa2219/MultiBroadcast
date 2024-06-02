@@ -23,6 +23,7 @@
         <DefineConstants>DEBUG;TRACE</DefineConstants>
         <ErrorReport>prompt</ErrorReport>
         <WarningLevel>4</WarningLevel>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
         <PlatformTarget>AnyCPU</PlatformTarget>
@@ -32,6 +33,19 @@
         <DefineConstants>TRACE</DefineConstants>
         <ErrorReport>prompt</ErrorReport>
         <WarningLevel>4</WarningLevel>
+        <PostBuildEvent>xcopy /y /s /i /d "C:\Users\PC\Documents\MultiBroadcast\MultiBroadcast\bin\Release\MultiBroadcast.dll" "C:\Users\PC\AppData\Roaming\EXILED\Plugins"</PostBuildEvent>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+    <PropertyGroup>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(GenerateDocumentationFile)' == 'true' and '$(DocumentationFile)' == ''">
+        <DocumentationFile Condition="'$(MSBuildProjectExtension)' == '.vbproj'">$(AssemblyName).xml</DocumentationFile>
+        <DocumentationFile Condition="'$(MSBuildProjectExtension)' != '.vbproj'">$(IntermediateOutputPath)$(AssemblyName).xml</DocumentationFile>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(GenerateDocumentationFile)' != 'true'">
+        <DocumentationFile />
     </PropertyGroup>
     <ItemGroup>
         <Reference Include="0Harmony">
@@ -105,7 +119,7 @@
       <None Include="packages.config" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
-    <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+    <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
          Other similar extension points exist, see Microsoft.Common.targets.
     <Target Name="BeforeBuild">
     </Target>
