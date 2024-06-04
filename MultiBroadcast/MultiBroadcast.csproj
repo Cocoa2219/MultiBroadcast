@@ -2,18 +2,18 @@
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props"
             Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')"/>
-    <PropertyGroup>
-        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-        <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-        <ProjectGuid>{6089ABA1-55AC-41A7-9DC1-11228C7C8A8C}</ProjectGuid>
-        <OutputType>Library</OutputType>
-        <AppDesignerFolder>Properties</AppDesignerFolder>
-        <RootNamespace>MultiBroadcast</RootNamespace>
-        <AssemblyName>MultiBroadcast</AssemblyName>
-        <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
-        <FileAlignment>512</FileAlignment>
-        <LangVersion>latest</LangVersion>
-    </PropertyGroup>
+        <PropertyGroup>
+            <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+            <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+            <ProjectGuid>{6089ABA1-55AC-41A7-9DC1-11228C7C8A8C}</ProjectGuid>
+            <OutputType>Library</OutputType>
+            <AppDesignerFolder>Properties</AppDesignerFolder>
+            <RootNamespace>MultiBroadcast</RootNamespace>
+            <AssemblyName>MultiBroadcast</AssemblyName>
+            <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
+            <FileAlignment>512</FileAlignment>
+            <LangVersion>latest</LangVersion>
+        </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
         <PlatformTarget>AnyCPU</PlatformTarget>
         <DebugSymbols>true</DebugSymbols>
@@ -33,7 +33,7 @@
         <DefineConstants>TRACE</DefineConstants>
         <ErrorReport>prompt</ErrorReport>
         <WarningLevel>4</WarningLevel>
-        <PostBuildEvent>xcopy /y /s /i /d "C:\Users\PC\Documents\MultiBroadcast\MultiBroadcast\bin\Release\MultiBroadcast.dll" "C:\Users\PC\AppData\Roaming\EXILED\Plugins"</PostBuildEvent>
+        <PostBuildEvent>xcopy /y /s /i /d "C:\Users\user\Documents\MultiBroadcast\MultiBroadcast\bin\Release\MultiBroadcast.dll" "C:\Users\user\AppData\Roaming\EXILED\Plugins"</PostBuildEvent>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
     <PropertyGroup>
@@ -49,13 +49,13 @@
     </PropertyGroup>
     <ItemGroup>
         <Reference Include="0Harmony">
-          <HintPath>..\..\Depnd\0Harmony.dll</HintPath>
+          <HintPath>..\..\SCPSL_References\0Harmony.dll</HintPath>
         </Reference>
         <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
           <HintPath>..\packages\EXILED.8.8.1\lib\net48\Assembly-CSharp-Publicized.dll</HintPath>
         </Reference>
         <Reference Include="Assembly-CSharp-firstpass">
-          <HintPath>..\..\Depnd\Assembly-CSharp-firstpass.dll</HintPath>
+          <HintPath>..\..\SCPSL_References\Assembly-CSharp-firstpass.dll</HintPath>
         </Reference>
         <Reference Include="CommandSystem.Core, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
           <HintPath>..\packages\EXILED.8.8.1\lib\net48\CommandSystem.Core.dll</HintPath>

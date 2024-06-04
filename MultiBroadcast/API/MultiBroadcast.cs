@@ -22,7 +22,7 @@ public static class MultiBroadcast
 
     private static void OnRestarting()
     {
-        ClearBroadcasts();
+        RestartBroadcasts();
     }
 
     /// <summary>
@@ -49,7 +49,7 @@ public static class MultiBroadcast
         foreach (var player in Player.List)
         {
             Id++;
-            Timing.RunCoroutine(AddPlayerBroadcastCoroutine(player.UserId, duration, text, onTop), "MBroadcast" + Id);
+            Timing.RunCoroutine(AddPlayerBroadcastCoroutine(player.UserId, duration, Id, text, onTop), "MBroadcast" + Id);
             Log.Debug($"Added broadcast for {player.Nickname} with id {Id}");
             ids.Add(Id);
         }
@@ -68,15 +68,15 @@ public static class MultiBroadcast
     public static int AddPlayerBroadcast(Player player, ushort duration, string text, bool onTop = false)
     {
         Id++;
-        Timing.RunCoroutine(AddPlayerBroadcastCoroutine(player.UserId, duration, text, onTop), "MBroadcast" + Id);
+        Timing.RunCoroutine(AddPlayerBroadcastCoroutine(player.UserId, duration, Id, text, onTop), "MBroadcast" + Id);
         Log.Debug($"Added broadcast for {player.Nickname} with id {Id}");
         return Id;
     }
 
-    private static IEnumerator<float> AddPlayerBroadcastCoroutine(string playerId, ushort duration, string text, bool onTop = false)
+    private static IEnumerator<float> AddPlayerBroadcastCoroutine(string playerId, ushort duration, int id, string text, bool onTop = false)
     {
         var player = Player.Get(playerId);
-        var broadcast = new PlayerBroadcast(player, text, Id, onTop);
+        var broadcast = new PlayerBroadcast(player, text, id, onTop);
 
         if (!PlayerBroadcasts.ContainsKey(playerId))
             PlayerBroadcasts.Add(playerId, [broadcast]);
@@ -133,6 +133,34 @@ public static class MultiBroadcast
     }
 
     /// <summary>
+    /// Edits a broadcast with a new duration.
+    /// </summary>
+    /// <param name="text">New text for the broadcast.</param>
+    /// <param name="duration">New duration for the broadcast.</param>
+    /// <param name="ids">IDs of the broadcasts to edit.</param>
+    /// <returns>True if the broadcast was successfully edited; otherwise, false.</returns>
+    public static bool EditBroadcast(string text, ushort duration, params int[] ids)
+    {
+        foreach (var id in ids)
+        {
+            var broadcast = GetBroadcast(id);
+
+            if (broadcast == null)
+            {
+                Log.Debug($"Error while editing: Broadcast with id {id} not found.");
+                return false;
+            }
+
+            Timing.KillCoroutines("MBroadcast" + id);
+            PlayerBroadcasts[broadcast.Player.UserId].Remove(broadcast);
+            RefreshBroadcast(broadcast.Player);
+            Timing.RunCoroutine(AddPlayerBroadcastCoroutine(broadcast.Player.UserId, duration, id, text, broadcast.OnTop), "MBroadcast" + id);
+            Log.Debug($"Edited broadcast with id {id} to {text} with duration {duration}");
+        }
+        return true;
+    }
+
+    /// <summary>
     /// Removes a broadcast.
     /// </summary>
     /// <param name="ids">IDs of the broadcasts to remove.</param>
@@ -141,8 +169,6 @@ public static class MultiBroadcast
     {
         foreach (var id in ids)
         {
-            Timing.KillCoroutines(id.ToString());
-
             var broadcast = GetBroadcast(id);
 
             if (broadcast == null)
@@ -151,6 +177,7 @@ public static class MultiBroadcast
                 return false;
             }
 
+            Timing.KillCoroutines("MBroadcast" + id);
             PlayerBroadcasts[broadcast.Player.UserId].Remove(broadcast);
             Log.Debug($"Removed broadcast with id {id}");
             RefreshBroadcast(broadcast.Player);
@@ -171,9 +198,9 @@ public static class MultiBroadcast
     }
 
     /// <summary>
-    /// Clears all broadcasts.
+    /// Restarts broadcasts for all players.
     /// </summary>
-    public static void ClearBroadcasts()
+    private static void RestartBroadcasts()
     {
         foreach (var broadcasts in PlayerBroadcasts.Values)
         {
@@ -197,6 +224,29 @@ public static class MultiBroadcast
     }
 
     /// <summary>
+    /// Clears all broadcasts.
+    /// </summary>
+    public static void ClearAllBroadcasts()
+    {
+        foreach (var broadcasts in PlayerBroadcasts.Values)
+        {
+            broadcasts.Clear();
+        }
+
+        foreach (var player in Player.List)
+        {
+            RefreshBroadcast(player);
+        }
+
+        Log.Debug("Cleared all broadcasts");
+
+        for (var i = 0; i < Id; i++)
+        {
+            Timing.KillCoroutines("MBroadcast" + i);
+        }
+    }
+
+    /// <summary>
     /// Clears all broadcasts for a player.
     /// </summary>
     /// <param name="player">Player to clear broadcasts for.</param>
@@ -211,7 +261,7 @@ public static class MultiBroadcast
 
             foreach (var id in ids)
             {
-                Timing.KillCoroutines(id.ToString());
+                Timing.KillCoroutines("MBroadcast" + id);
             }
         }
     }
@@ -249,7 +299,7 @@ public class BroadcastCommand : ICommand
 
         if (arguments.Count < 1)
         {
-            response = "Usage: mbroadcast <add/edit/remove>";
+            response = "Usage: mbroadcast <add/edit/remove/list>";
             return false;
         }
 
@@ -352,7 +402,7 @@ public class BroadcastCommand : ICommand
                 switch (arg2[0])
                 {
                     case 'a':
-                        MultiBroadcast.ClearBroadcasts();
+                        MultiBroadcast.ClearAllBroadcasts();
                         response = "Removed all broadcasts";
                         return true;
                     case 'p':

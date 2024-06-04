@@ -23,7 +23,7 @@ internal class ClearBroadcastPatch
 
         ServerLogs.AddLog(ServerLogs.Modules.Administrative, sender.LogName + " cleared all broadcasts.",
             ServerLogs.ServerLogType.RemoteAdminActivity_GameChanging);
-        API.MultiBroadcast.ClearBroadcasts();
+        API.MultiBroadcast.ClearAllBroadcasts();
         response = "All broadcasts cleared.";
         __result = true;
         return false;
