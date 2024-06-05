@@ -12,6 +12,7 @@ public static class Utilties
     ///    Get the integer arguments from a string.
     /// </summary>
     /// <param name="text">The text to parse.</param>
+    /// <param name="args">The integer arguments.</param>
     /// <returns>The integer arguments.</returns>
     public static bool GetIntArguments(string text, out int[] args)
     {
