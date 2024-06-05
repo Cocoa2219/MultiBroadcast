@@ -50,7 +50,7 @@ internal class BroadcastPatch
         var ids = API.MultiBroadcast.AddMapBroadcast(time, text2);
         ServerLogs.AddLog(ServerLogs.Modules.Administrative,
             $"{sender.LogName} broadcast text \"{text2}\". Duration: {text} seconds. Broadcast Flag: {broadcastFlags}.", ServerLogs.ServerLogType.RemoteAdminActivity_GameChanging);
-        response = $"Added broadcast for all players with id {string.Join(", ", ids)}";
+        response = ids == null ? "Error on adding broadcast" : $"Added broadcast for all players with id {string.Join(", ", ids)}";
         __result = true;
         return false;
     }

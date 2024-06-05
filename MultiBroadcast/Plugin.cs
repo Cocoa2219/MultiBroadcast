@@ -1,8 +1,9 @@
 ﻿using System;
 using Exiled.API.Features;
+using Exiled.Events.EventArgs.Player;
 using HarmonyLib;
-using MEC;
-using Server = Exiled.Events.Handlers.Server;
+using PlayerRoles.PlayableScps.Scp939;
+using Player = Exiled.Events.Handlers.Player;
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
@@ -12,13 +13,13 @@ namespace MultiBroadcast
     {
         public static Plugin Instance { get; private set; }
 
-        public override string Name { get; } = "MultiBroadcast";
-        public override string Author { get; } = "Cocoa";
-        public override string Prefix { get; } = "MultiBroadcast";
-        public override System.Version Version { get; } = new(1, 0, 1);
-        public override System.Version RequiredExiledVersion { get; } = new(8, 8, 1);
+        public override string Name => "MultiBroadcast";
+        public override string Author => "Cocoa";
+        public override string Prefix => "MultiBroadcast";
+        public override Version Version { get; } = new(1, 0, 1);
+        public override Version RequiredExiledVersion { get; } = new(8, 8, 1);
 
-        public Harmony Harmony { get; private set; }
+        private Harmony Harmony { get; set; }
 
         public override void OnEnabled()
         {
