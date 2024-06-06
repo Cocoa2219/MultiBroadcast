@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using CommandSystem;
 using CommandSystem.Commands.RemoteAdmin.Broadcasts;
 using Exiled.API.Features;
@@ -84,21 +85,28 @@ internal class PlayerBroadcastPatch
         var text2 = RAUtils.FormatArguments(array.Segment(1), flag ? 1 : 0);
         var stringBuilder = StringBuilderPool.Shared.Rent();
         var num2 = 0;
-        int[] ids = [];
+        var ids = ListPool<int>.Shared.Rent();
+        var ls = ListPool<Player>.Shared.Rent();
+
         foreach (var referenceHub in list)
         {
             if (num2++ != 0) stringBuilder.Append(", ");
             stringBuilder.Append(referenceHub.LoggedNameFromRefHub());
-            ids.AddItem(API.MultiBroadcast.AddPlayerBroadcast(Player.Get(referenceHub), num, text2));
+            var player = Player.Get(referenceHub);
+            var id = API.MultiBroadcast.AddPlayerBroadcast(player, num, text2);
+            ids.Add(id);
+            ls.Add(player);
         }
 
         ServerLogs.AddLog(ServerLogs.Modules.Administrative,
             $"{sender.LogName} broadcast text \"{text2}\" to {num2} players. Duration: {num} seconds. Affected players: {stringBuilder}. Broadcast Flag: {broadcastFlags}.",
             ServerLogs.ServerLogType.RemoteAdminActivity_GameChanging);
         StringBuilderPool.Shared.Return(stringBuilder);
-        response = num2 > 2
+        response = num2 >= 2
             ? $"Added broadcast for {num2} players with id {string.Join(", ", ids)}"
-            : "Added broadcast for " + stringBuilder + " with id " + string.Join(", ", ids);
+            : "Added broadcast for " + ls[0].Nickname + " with id " + ids[0];
+        ListPool<Player>.Shared.Return(ls);
+        ListPool<int>.Shared.Return(ids);
         __result = true;
         return false;
     }

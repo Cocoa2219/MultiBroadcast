@@ -31,11 +31,15 @@ _Note: This plugin also patches and replaces the original broadcast command._
 
 All methods can be found in the `MultiBroadcast` class.
 
-| Method                                           | Description                          | Returns                                    |
-|--------------------------------------------------|--------------------------------------|--------------------------------------------|
-| `int[] AddMapBroadcast(duration, text)`          | Broadcasts a message to all players. | A group of ids.                            |
-| `int AddPlayerBroadcast(player, duration, text)` | Broadcasts a message to all players. | A id.                                      |
-| `bool EditBroadcast(id, text)`                   | Edits a broadcast.                   | If the broadcast was successfully edited.  |
-| `bool RemoveBroadcast(id)`                       | Removes a broadcast.                 | If the broadcast was successfully removed. |
-| `void RemoveAllBroadcasts()`                     | Removes all broadcasts.              | Nothing.                                   |
-| `void RemovePlayerBroadcast(player)`             | Removes all broadcasts of player.    | Nothing.                                   |
+| Method                                           | Description                           | Returns                                         |
+|--------------------------------------------------|---------------------------------------|-------------------------------------------------|
+| `int[] AddMapBroadcast(duration, text)`          | Broadcasts a message to all players.  | A group of ids.                                 |
+| `int AddPlayerBroadcast(player, duration, text)` | Broadcasts a message to all players.  | A id. (returns -1 if error happen while adding) |
+| `PlayerBroadcast GetBroadcast(id)`               | Gets a broadcast.                     | If the broadcast was found.                     |
+| `string GetBroadcastText(id)`                    | Gets text of broadcast.               | The text of the broadcast.                      |
+| `bool EditBroadcast(text, ids)`                  | Edits a broadcast.                    | If the broadcast was successfully edited.       |
+| `bool EditBroadcast(text, duration, ids)`        | Edits a broadcast with a new duration | If the broadcast was successfully edited.       |
+| `bool RemoveBroadcast(ids)`                      | Removes a broadcast.                  | If the broadcast was successfully removed.      |
+| `bool HasBroadcast(player, id)`                  | Checks if player has broadcast.       | If the player has the broadcast.                |
+| `void RemoveAllBroadcasts()`                     | Removes all broadcasts.               | Nothing.                                        |
+| `void RemovePlayerBroadcast(player)`             | Removes all broadcasts of player.     | Nothing.                                        |

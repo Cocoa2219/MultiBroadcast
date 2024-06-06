@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Text;
-using CommandSystem;
 using Exiled.API.Features;
+using HarmonyLib;
 using MEC;
 using Server = Exiled.Events.Handlers.Server;
 
@@ -210,7 +208,24 @@ public static class MultiBroadcast
         return true;
     }
 
-    private static PlayerBroadcast GetBroadcast(int id)
+    /// <summary>
+    ///     Checks if a broadcast exists with the specified ID to player.
+    /// </summary>
+    /// <param name="player">Player to check for.</param>
+    /// <param name="id">ID of the broadcast.</param>
+    /// <returns>True if the broadcast exists; otherwise, false.</returns>
+    public static bool BroadcastExists(Player player, int id)
+    {
+        return PlayerBroadcasts.ContainsKey(player.UserId) &&
+               PlayerBroadcasts[player.UserId].Any(broadcast => broadcast.Id == id);
+    }
+
+    /// <summary>
+    ///     Gets a broadcast with the specified ID.
+    /// </summary>
+    /// <param name="id">ID of the broadcast.</param>
+    /// <returns>The broadcast with the specified ID.</returns>
+    public static PlayerBroadcast GetBroadcast(int id)
     {
         var broadcast = PlayerBroadcasts.Values
             .SelectMany(broadcasts => broadcasts)
@@ -220,6 +235,18 @@ public static class MultiBroadcast
             Log.Debug($"Broadcast with id {id} not found.");
 
         return broadcast;
+    }
+
+    /// <summary>
+    ///    Gets the text of a broadcast with the specified ID.
+    /// </summary>
+    /// <param name="id">ID of the broadcast.</param>
+    /// <returns>The text of the broadcast with the specified ID.</returns>
+    public static string GetBroadcastText(int id)
+    {
+        var broadcast = GetBroadcast(id);
+
+        return broadcast?.Text;
     }
 
     /// <summary>
@@ -289,163 +316,3 @@ public static class BroadcastExtensions
         return MultiBroadcast.AddPlayerBroadcast(player, duration, message, onTop);
     }
 }
-
-// [CommandHandler(typeof(RemoteAdminCommandHandler))]
-// public class BroadcastCommand : ICommand
-// {
-//     public bool Execute(ArraySegment<string> arguments, ICommandSender sender, [UnscopedRef] out string response)
-//     {
-//         if (!sender.CheckPermission(PlayerPermissions.Broadcasting, out response)) return false;
-//
-//         if (arguments.Count < 1)
-//         {
-//             response = "Usage: mbroadcast <add/edit/remove/list>";
-//             return false;
-//         }
-//
-//         var arg = arguments.At(0).ToLower();
-//
-//         int id;
-//         string text;
-//         string arg2;
-//         bool result;
-//
-//         switch (arg[0])
-//         {
-//             case 'a':
-//                 if (arguments.Count < 2)
-//                 {
-//                     response = "Usage: mbroadcast add <map/player>";
-//                     return false;
-//                 }
-//
-//                 arg2 = arguments.At(1).ToLower();
-//
-//                 switch (arg2[0])
-//                 {
-//                     case 'm':
-//                         if (arguments.Count < 4)
-//                         {
-//                             response = "Usage: mbroadcast add map <duration> <text>";
-//                             return false;
-//                         }
-//
-//                         if (!ushort.TryParse(arguments.At(2), out var duration))
-//                         {
-//                             response = "Usage: mbroadcast add map <duration> <text>";
-//                             return false;
-//                         }
-//
-//                         text = string.Join(" ", arguments.Skip(3));
-//
-//                         var ids = MultiBroadcast.AddMapBroadcast(duration, text);
-//                         response = $"Added broadcast for all players with id {string.Join(", ", ids)}";
-//                         return true;
-//                     case 'p':
-//                         if (arguments.Count < 5)
-//                         {
-//                             response = "Usage: mbroadcast add player <player> <duration> <text>";
-//                             return false;
-//                         }
-//
-//                         var player = Player.Get(arguments.At(2));
-//
-//                         if (player == null)
-//                         {
-//                             response = "Player not found";
-//                             return false;
-//                         }
-//
-//                         if (!ushort.TryParse(arguments.At(3), out duration))
-//                         {
-//                             response = "Usage: mbroadcast add player <player> <duration> <text>";
-//                             return false;
-//                         }
-//
-//                         text = string.Join(" ", arguments.Skip(4));
-//
-//                         id = MultiBroadcast.AddPlayerBroadcast(player, duration, text);
-//
-//                         response = $"Added broadcast for {player.Nickname} with id {id}";
-//                         return true;
-//                     default:
-//                         response = "Usage: mbroadcast add <map/player>";
-//                         return false;
-//                 }
-//             case 'e':
-//                 if (arguments.Count < 3)
-//                 {
-//                     response = "Usage: mbroadcast edit <id> <text>";
-//                     return false;
-//                 }
-//
-//                 if (!int.TryParse(arguments.At(1), out id))
-//                 {
-//                     response = "Usage: mbroadcast edit <id> <text>";
-//                     return false;
-//                 }
-//
-//                 text = string.Join(" ", arguments.Skip(2));
-//
-//                 result = MultiBroadcast.EditBroadcast(text, id);
-//                 response = !result
-//                     ? $"Error on editing broadcast with id {id}"
-//                     : $"Edited broadcast with id {id} to {text}";
-//                 return true;
-//             case 'r':
-//                 if (arguments.Count < 2)
-//                 {
-//                     response = "Usage: mbroadcast remove <all/player/id>";
-//                     return false;
-//                 }
-//
-//                 arg2 = arguments.At(1).ToLower();
-//
-//                 switch (arg2[0])
-//                 {
-//                     case 'a':
-//                         MultiBroadcast.ClearAllBroadcasts();
-//                         response = "Removed all broadcasts";
-//                         return true;
-//                     case 'p':
-//                         if (arguments.Count < 3)
-//                         {
-//                             response = "Usage: mbroadcast remove player <player>";
-//                             return false;
-//                         }
-//
-//                         var player = Player.Get(arguments.At(2));
-//
-//                         MultiBroadcast.ClearPlayerBroadcasts(player);
-//                         response = $"Removed all broadcasts for {player.Nickname}";
-//                         return true;
-//                     default:
-//                         if (!int.TryParse(arg2, out id))
-//                         {
-//                             response = "Usage: mbroadcast remove <all/player/id>";
-//                             return false;
-//                         }
-//
-//                         result = MultiBroadcast.RemoveBroadcast(id);
-//                         response = !result
-//                             ? $"Error on removing broadcast with id {id}"
-//                             : $"Removed broadcast with id {id}";
-//                         return true;
-//                 }
-//             case 'l':
-//                 var sb = new StringBuilder("\n<b>Current Broadcast List:</b>\n");
-//                 foreach (var bc in MultiBroadcast.PlayerBroadcasts.Values.SelectMany(broadcasts => broadcasts))
-//                     sb.Append($" - ID: {bc.Id}, Player: {bc.Player.Nickname}, Text: {bc.Text}\n");
-//
-//                 response = sb.ToString();
-//                 return true;
-//             default:
-//                 response = "Usage: mbroadcast <add/edit/remove/list>";
-//                 return false;
-//         }
-//     }
-//
-//     public string Command { get; } = "mbroadcast";
-//     public string[] Aliases { get; } = ["mbc"];
-//     public string Description { get; } = "Broadcasts a message to all players or a specific player.";
-// }

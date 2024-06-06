@@ -25,7 +25,7 @@ public class Edit : ICommand
             return false;
         }
 
-        var text = string.Join(" ", arguments.Skip(2));
+        var text = string.Join(" ", arguments.Skip(1));
 
         var result = API.MultiBroadcast.EditBroadcast(text, ids);
         var str = Utilties.GetStringFromArray(ids);
