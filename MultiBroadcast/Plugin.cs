@@ -16,7 +16,7 @@ namespace MultiBroadcast
         public override string Name => "MultiBroadcast";
         public override string Author => "Cocoa";
         public override string Prefix => "MultiBroadcast";
-        public override Version Version { get; } = new(1, 1, 1);
+        public override Version Version { get; } = new(1, 1, 2);
         public override Version RequiredExiledVersion { get; } = new(8, 8, 1);
 
         private Harmony Harmony { get; set; }
