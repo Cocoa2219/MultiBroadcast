@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Exiled.API.Features;
-using HarmonyLib;
 using MEC;
 using Server = Exiled.Events.Handlers.Server;
 
@@ -26,7 +24,7 @@ public static class MultiBroadcast
     /// <summary>
     ///     Dictionary that contains all broadcasts for each player.
     /// </summary>
-    public static Dictionary<string, List<PlayerBroadcast>> PlayerBroadcasts { get; } = new();
+    private static Dictionary<string, List<PlayerBroadcast>> PlayerBroadcasts { get; } = new();
 
     /// <summary>
     ///     Gets the ID of the broadcast.
@@ -40,25 +38,27 @@ public static class MultiBroadcast
     /// <param name="text">Text of the broadcast.</param>
     /// <param name="onTop">Decides whether this broadcast must be fixed on top.</param>
     /// <returns>A group of IDs.</returns>
-    public static int[] AddMapBroadcast(ushort duration, string text, bool onTop = false)
+    public static IEnumerable<PlayerBroadcast> AddMapBroadcast(ushort duration, string text, bool onTop = false)
     {
         if (duration > 300)
             return null;
 
-        var ids = new List<int>();
+        var ids = new List<PlayerBroadcast>();
 
         foreach (var player in Player.List)
         {
             if (player.IsNPC)
                 continue;
             Id++;
-            Timing.RunCoroutine(AddPlayerBroadcastCoroutine(player.UserId, duration, Id, text, onTop),
+            var broadcast = new PlayerBroadcast(player, text, Id, onTop);
+
+            Timing.RunCoroutine(AddPlayerBroadcastCoroutine(broadcast, duration),
                 "MBroadcast" + Id);
             Log.Debug($"Added broadcast for {player.Nickname} with id {Id}");
-            ids.Add(Id);
+            ids.Add(broadcast);
         }
 
-        return ids.ToArray();
+        return ids;
     }
 
     /// <summary>
@@ -69,24 +69,26 @@ public static class MultiBroadcast
     /// <param name="text">Text of the broadcast.</param>
     /// <param name="onTop">Decides whether this broadcast must be fixed on top.</param>
     /// <returns>The ID of the broadcast.</returns>
-    public static int AddPlayerBroadcast(Player player, ushort duration, string text, bool onTop = false)
+    public static PlayerBroadcast AddPlayerBroadcast(Player player, ushort duration, string text, bool onTop = false)
     {
         if (player.IsNPC)
-            return -1;
+            return null;
         if (duration > 300)
-            return -1;
+            return null;
+
+        var broadcast = new PlayerBroadcast(player, text, Id, onTop);
 
         Id++;
-        Timing.RunCoroutine(AddPlayerBroadcastCoroutine(player.UserId, duration, Id, text, onTop), "MBroadcast" + Id);
+        Timing.RunCoroutine(AddPlayerBroadcastCoroutine(broadcast, duration),
+            "MBroadcast" + Id);
         Log.Debug($"Added broadcast for {player.Nickname} with id {Id}");
-        return Id;
+        return broadcast;
     }
 
-    private static IEnumerator<float> AddPlayerBroadcastCoroutine(string playerId, ushort duration, int id, string text,
-        bool onTop = false)
+    private static IEnumerator<float> AddPlayerBroadcastCoroutine(PlayerBroadcast broadcast, ushort duration)
     {
-        var player = Player.Get(playerId);
-        var broadcast = new PlayerBroadcast(player, text, id, onTop);
+        var player = broadcast.Player;
+        var playerId = player.UserId;
 
         if (!PlayerBroadcasts.ContainsKey(playerId))
             PlayerBroadcasts.Add(playerId, [broadcast]);
@@ -108,10 +110,18 @@ public static class MultiBroadcast
         if (!PlayerBroadcasts.ContainsKey(player.UserId))
             return;
 
-        var broadcasts = PlayerBroadcasts[player.UserId]
-            .OrderByDescending(x => x.OnTop)
-            .ThenByDescending(y => y.Id)
-            .ToList();
+        var isDependecy = Plugin.Instance == null;
+        var sortOrder = isDependecy ? BroadcastOrder.Desending : Plugin.Instance.Config.Order;
+
+        var broadcasts = sortOrder == BroadcastOrder.Desending
+            ? PlayerBroadcasts[player.UserId]
+                .OrderByDescending(x => x.OnTop)
+                .ThenByDescending(y => y.Id)
+                .ToList()
+            : PlayerBroadcasts[player.UserId]
+                .OrderByDescending(x => x.OnTop)
+                .ThenBy(y => y.Id)
+                .ToList();
 
         var writtenText = string.Join("\n", broadcasts.Select(b => b.Text));
         player.Broadcast(120, writtenText, Broadcast.BroadcastFlags.Normal, true);
@@ -137,6 +147,30 @@ public static class MultiBroadcast
 
             broadcast.Text = text;
             Log.Debug($"Edited broadcast with id {id} to {text}");
+            RefreshBroadcast(broadcast.Player);
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    ///     Edits a broadcast.
+    /// </summary>
+    /// <param name="text">New text for the broadcast.</param>
+    /// <param name="broadcasts">Broadcasts to edit.</param>
+    /// <returns>True if the broadcast was successfully edited; otherwise, false.</returns>
+    public static bool EditBroadcast(string text, params PlayerBroadcast[] broadcasts)
+    {
+        foreach (var broadcast in broadcasts)
+        {
+            if (broadcast == null)
+            {
+                Log.Debug($"Error while editing: Broadcast not found.");
+                return false;
+            }
+
+            broadcast.Text = text;
+            Log.Debug($"Edited broadcast with id {broadcast.Id} to {text}");
             RefreshBroadcast(broadcast.Player);
         }
 
@@ -174,9 +208,46 @@ public static class MultiBroadcast
             PlayerBroadcasts[broadcast.Player.UserId].Remove(broadcast);
             RefreshBroadcast(broadcast.Player);
             Timing.RunCoroutine(
-                AddPlayerBroadcastCoroutine(broadcast.Player.UserId, duration, id, text, broadcast.OnTop),
+                AddPlayerBroadcastCoroutine(new PlayerBroadcast(broadcast.Player, text, id, broadcast.OnTop), duration),
                 "MBroadcast" + id);
             Log.Debug($"Edited broadcast with id {id} to {text} with duration {duration}");
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    ///     Edits a broadcast with a new duration.
+    /// </summary>
+    /// <param name="text">New text for the broadcast.</param>
+    /// <param name="duration">New duration for the broadcast.</param>
+    /// <param name="broadcasts">Broadcasts to edit.</param>
+    /// <returns>True if the broadcast was successfully edited; otherwise, false.</returns>
+    public static bool EditBroadcast(string text, ushort duration, params PlayerBroadcast[] broadcasts)
+    {
+        switch (duration)
+        {
+            case 0:
+                return EditBroadcast(text, broadcasts);
+            case > 300:
+                return false;
+        }
+
+        foreach (var broadcast in broadcasts)
+        {
+            if (broadcast == null)
+            {
+                Log.Debug($"Error while editing: Broadcast not found.");
+                return false;
+            }
+
+            Timing.KillCoroutines("MBroadcast" + broadcast.Id);
+            PlayerBroadcasts[broadcast.Player.UserId].Remove(broadcast);
+            RefreshBroadcast(broadcast.Player);
+            Timing.RunCoroutine(
+                AddPlayerBroadcastCoroutine(new PlayerBroadcast(broadcast.Player, text, broadcast.Id, broadcast.OnTop), duration),
+                "MBroadcast" + broadcast.Id);
+            Log.Debug($"Edited broadcast with id {broadcast.Id} to {text} with duration {duration}");
         }
 
         return true;
@@ -202,6 +273,30 @@ public static class MultiBroadcast
             Timing.KillCoroutines("MBroadcast" + id);
             PlayerBroadcasts[broadcast.Player.UserId].Remove(broadcast);
             Log.Debug($"Removed broadcast with id {id}");
+            RefreshBroadcast(broadcast.Player);
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    ///     Removes a broadcast.
+    /// </summary>
+    /// <param name="broadcasts">Broadcasts to remove.</param>
+    /// <returns>True if the broadcasts were successfully removed; otherwise, false.</returns>
+    public static bool RemoveBroadcast(params PlayerBroadcast[] broadcasts)
+    {
+        foreach (var broadcast in broadcasts)
+        {
+            if (broadcast == null)
+            {
+                Log.Debug($"Error while removing: Broadcast not found.");
+                return false;
+            }
+
+            Timing.KillCoroutines("MBroadcast" + broadcast.Id);
+            PlayerBroadcasts[broadcast.Player.UserId].Remove(broadcast);
+            Log.Debug($"Removed broadcast with id {broadcast.Id}");
             RefreshBroadcast(broadcast.Player);
         }
 
@@ -238,7 +333,26 @@ public static class MultiBroadcast
     }
 
     /// <summary>
-    ///    Gets the text of a broadcast with the specified ID.
+    ///     Gets all broadcasts for a player.
+    /// </summary>
+    /// <param name="player">Player to get broadcasts for.</param>
+    /// <returns>All broadcasts for the player.</returns>
+    public static IEnumerable<PlayerBroadcast> GetPlayerBroadcasts(Player player)
+    {
+        return PlayerBroadcasts.TryGetValue(player.UserId, out var broadcast) ? broadcast.ToArray() : null;
+    }
+
+    /// <summary>
+    ///     Gets all broadcasts.
+    /// </summary>
+    /// <returns>All broadcasts.</returns>
+    public static Dictionary<string, List<PlayerBroadcast>> GetAllBroadcasts()
+    {
+        return PlayerBroadcasts;
+    }
+
+    /// <summary>
+    ///     Gets the text of a broadcast with the specified ID.
     /// </summary>
     /// <param name="id">ID of the broadcast.</param>
     /// <returns>The text of the broadcast with the specified ID.</returns>
@@ -311,8 +425,66 @@ public static class BroadcastExtensions
     /// <param name="message">Text of the broadcast.</param>
     /// <param name="onTop">Decides whether this broadcast must be fixed on top.</param>
     /// <returns>The ID of the broadcast.</returns>
-    public static int Broadcast(this Player player, ushort duration, string message, bool onTop = false)
+    public static PlayerBroadcast AddPlayerBroadcast(this Player player, ushort duration, string message, bool onTop = false)
     {
         return MultiBroadcast.AddPlayerBroadcast(player, duration, message, onTop);
+    }
+
+    /// <summary>
+    ///     Clears all broadcasts for a player.
+    /// </summary>
+    /// <param name="player">Player to clear broadcasts for.</param>
+    public static void ClearPlayerBroadcasts(this Player player)
+    {
+        MultiBroadcast.ClearPlayerBroadcasts(player);
+    }
+
+    /// <summary>
+    ///     Gets all broadcasts for a player.
+    /// </summary>
+    /// <param name="player">Player to get broadcasts for.</param>
+    /// <returns>All broadcasts for the player.</returns>
+    public static IEnumerable<PlayerBroadcast> GetBroadcasts(this Player player)
+    {
+        return MultiBroadcast.GetPlayerBroadcasts(player);
+    }
+}
+
+/// <summary>
+///     Class that provides extension methods for player broadcasts.
+/// </summary>
+public static class PlayerBroadcastExtensions
+{
+    /// <summary>
+    ///     Edits a broadcast.
+    /// </summary>
+    /// <param name="broadcast">The broadcast to edit.</param>
+    /// <param name="text">New text for the broadcast.</param>
+    /// <returns>True if the broadcast was successfully edited; otherwise, false.</returns>
+    public static bool EditBroadcast(this PlayerBroadcast broadcast, string text)
+    {
+        return MultiBroadcast.EditBroadcast(text, broadcast.Id);
+    }
+
+    /// <summary>
+    ///     Edits a broadcast with a new duration.
+    /// </summary>
+    /// <param name="broadcast">The broadcast to edit.</param>
+    /// <param name="text">New text for the broadcast.</param>
+    /// <param name="duration">New duration for the broadcast.</param>
+    /// <returns>True if the broadcast was successfully edited; otherwise, false.</returns>
+    public static bool EditBroadcast(this PlayerBroadcast broadcast, string text, ushort duration)
+    {
+        return MultiBroadcast.EditBroadcast(text, duration, broadcast.Id);
+    }
+
+    /// <summary>
+    ///     Removes a broadcast.
+    /// </summary>
+    /// <param name="broadcast">The broadcast to remove.</param>
+    /// <returns>True if the broadcast was successfully removed; otherwise, false.</returns>
+    public static bool RemoveBroadcast(this PlayerBroadcast broadcast)
+    {
+        return MultiBroadcast.RemoveBroadcast(broadcast.Id);
     }
 }

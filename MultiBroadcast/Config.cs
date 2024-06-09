@@ -11,5 +11,16 @@ namespace MultiBroadcast
 
         [Description("Indicates whether the plugin is in debug mode or not.")]
         public bool Debug { get; set; } = false;
+
+        [Description(
+            "Indicates order of broadcasts. Desending = newest broadcasts add on top, Ascending = newest broadcasts add on bottom"
+        )]
+        public BroadcastOrder Order { get; set; } = BroadcastOrder.Desending;
+    }
+
+    public enum BroadcastOrder
+    {
+        Desending,
+        Ascending
     }
 }

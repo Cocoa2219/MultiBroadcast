@@ -66,7 +66,7 @@ public class Add : ICommand
 
                 var id = API.MultiBroadcast.AddPlayerBroadcast(player, duration, text);
 
-                response = id < 0 ? $"Error on adding broadcast to {player.Nickname}" : $"Added broadcast for {player.Nickname} with id {id}";
+                response = id == null ? $"Error on adding broadcast to {player.Nickname}" : $"Added broadcast for {player.Nickname} with id {id}";
                 return true;
             default:
                 response = "Usage: mbroadcast add <map/player>";
@@ -78,8 +78,11 @@ public class Add : ICommand
     public string Command { get; } = "add";
 
     /// <inheritdoc />
-    public string[] Aliases { get; } = { "a" };
+    public string[] Aliases { get; } = ["a"];
 
     /// <inheritdoc />
     public string Description { get; } = "Add a broadcast.";
+
+    /// <inheritdoc />
+    public bool SanitizeResponse { get; } = false;
 }

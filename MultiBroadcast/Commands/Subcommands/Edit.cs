@@ -39,8 +39,11 @@ public class Edit : ICommand
     public string Command { get; } = "edit";
 
     /// <inheritdoc />
-    public string[] Aliases { get; } = { "e" };
+    public string[] Aliases { get; } = ["e"];
 
     /// <inheritdoc />
     public string Description { get; } = "Edit a broadcast.";
+
+    /// <inheritdoc />
+    public bool SanitizeResponse { get; } = false;
 }

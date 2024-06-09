@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using CommandSystem;
 using Exiled.API.Features;
+using MultiBroadcast.API;
 
 namespace MultiBroadcast.Commands.Subcommands;
 
@@ -59,8 +60,11 @@ public class Remove : ICommand
     public string Command { get; } = "remove";
 
     /// <inheritdoc />
-    public string[] Aliases { get; } = { "r" };
+    public string[] Aliases { get; } = ["r"];
 
     /// <inheritdoc />
     public string Description { get; } = "Remove a broadcast.";
+
+    /// <inheritdoc />
+    public bool SanitizeResponse { get; } = false;
 }

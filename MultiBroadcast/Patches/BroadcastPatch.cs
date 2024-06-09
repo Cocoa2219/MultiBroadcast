@@ -93,8 +93,8 @@ internal class PlayerBroadcastPatch
             if (num2++ != 0) stringBuilder.Append(", ");
             stringBuilder.Append(referenceHub.LoggedNameFromRefHub());
             var player = Player.Get(referenceHub);
-            var id = API.MultiBroadcast.AddPlayerBroadcast(player, num, text2);
-            ids.Add(id);
+            var broadcast = API.MultiBroadcast.AddPlayerBroadcast(player, num, text2);
+            ids.Add(broadcast.Id);
             ls.Add(player);
         }
 
