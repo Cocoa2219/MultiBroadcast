@@ -281,7 +281,8 @@ public static class MultiBroadcast
     /// </summary>
     /// <param name="priority">Priority to set.</param>
     /// <param name="ids">Id of broadcasts to set the priority for.</param>
-    public static void SetPriority(byte priority, params int[] ids)
+    /// <returns>True if the broadcasts were priority was successfully set; otherwise, false.</returns>
+    public static bool SetPriority(byte priority, params int[] ids)
     {
         foreach (var id in ids)
         {
@@ -290,13 +291,15 @@ public static class MultiBroadcast
             if (broadcast == null)
             {
                 Log.Debug($"Error while setting priority: Broadcast with id {id} not found.");
-                return;
+                return false;
             }
 
             broadcast.Priority = priority;
             Log.Debug($"Set priority of broadcast with id {id} to {priority}");
             RefreshBroadcast(broadcast.Player);
         }
+
+        return true;
     }
 
     /// <summary>
@@ -304,20 +307,23 @@ public static class MultiBroadcast
     /// </summary>
     /// <param name="priority">Priority to set.</param>
     /// <param name="broadcasts">Broadcasts to set the priority for.</param>
-    public static void SetPriority(byte priority, params Broadcast[] broadcasts)
+    /// <returns>True if the broadcasts were priority was successfully set; otherwise, false.</returns>
+    public static bool SetPriority(byte priority, params Broadcast[] broadcasts)
     {
         foreach (var broadcast in broadcasts)
         {
             if (broadcast == null)
             {
                 Log.Debug("Error while setting priority: Broadcast not found.");
-                return;
+                return false;
             }
 
             broadcast.Priority = priority;
             Log.Debug($"Set priority of broadcast with id {broadcast.Id} to {priority}");
             RefreshBroadcast(broadcast.Player);
         }
+
+        return true;
     }
 
     /// <summary>
@@ -564,8 +570,9 @@ public static class PlayerBroadcastExtensions
     /// </summary>
     /// <param name="broadcast">The broadcast to set the priority for.</param>
     /// <param name="priority">Priority to set.</param>
-    public static void SetPriority(this Broadcast broadcast, byte priority)
+    /// <returns>True if the broadcast priority was successfully set; otherwise, false.</returns>
+    public static bool SetPriority(this Broadcast broadcast, byte priority)
     {
-        MultiBroadcast.SetPriority(priority, broadcast.Id);
+        return MultiBroadcast.SetPriority(priority, broadcast.Id);
     }
 }
