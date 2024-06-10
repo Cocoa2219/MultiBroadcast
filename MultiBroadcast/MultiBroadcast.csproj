@@ -110,7 +110,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="API\MultiBroadcast.cs" />
-    <Compile Include="API\PlayerBroadcast.cs" />
+    <Compile Include="API\Broadcast.cs" />
     <Compile Include="Commands\MultiBroadcastParentCommand.cs" />
     <Compile Include="Commands\Subcommands\Add.cs" />
     <Compile Include="Commands\Subcommands\Edit.cs" />
