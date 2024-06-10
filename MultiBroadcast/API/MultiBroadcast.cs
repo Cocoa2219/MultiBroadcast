@@ -38,11 +38,11 @@ public static class MultiBroadcast
     /// </summary>
     /// <param name="duration">Broadcast duration.</param>
     /// <param name="text">Text of the broadcast.</param>
-    /// <param name="onTop">Decides whether this broadcast must be fixed on top.</param>
-    /// <returns>A group of IDs.</returns>
-    public static IEnumerable<Broadcast> AddMapBroadcast(ushort duration, string text, bool onTop = false)
+    /// <param name="priority">Priority of the broadcast.</param>
+    /// <returns>Broadcasts that were added.</returns>
+    public static IEnumerable<Broadcast> AddMapBroadcast(ushort duration, string text, byte priority = 0)
     {
-        Log.Debug($"AddMapBroadcast called with duration: {duration}, text: {text}, onTop: {onTop}");
+        Log.Debug($"AddMapBroadcast called with duration: {duration}, text: {text}, priority: {priority}");
 
         if (duration is 0 or > 300)
         {
@@ -61,7 +61,7 @@ public static class MultiBroadcast
                 continue;
             Id++;
 
-            var broadcast = new Broadcast(player, text, Id, onTop);
+            var broadcast = new Broadcast(player, text, Id, priority);
 
             Timing.RunCoroutine(AddPlayerBroadcastCoroutine(broadcast, duration),
                 "MBroadcast" + Id);
@@ -79,11 +79,11 @@ public static class MultiBroadcast
     /// <param name="player">Player to send the broadcast to.</param>
     /// <param name="duration">Broadcast duration.</param>
     /// <param name="text">Text of the broadcast.</param>
-    /// <param name="onTop">Decides whether this broadcast must be fixed on top.</param>
-    /// <returns>The ID of the broadcast.</returns>
-    public static Broadcast AddPlayerBroadcast(Player player, ushort duration, string text, bool onTop = false)
+    /// <param name="priority">Priority of the broadcast.</param>
+    /// <returns>The broadcast that was added.</returns>
+    public static Broadcast AddPlayerBroadcast(Player player, ushort duration, string text, byte priority = 0)
     {
-        Log.Debug($"AddPlayerBroadcast called for player {player?.Nickname}, duration: {duration}, text: {text}, onTop: {onTop}");
+        Log.Debug($"AddPlayerBroadcast called for player {player?.Nickname}, duration: {duration}, text: {text}, priority: {priority}");
 
         if (player == null || player.IsNPC || duration == 0 || duration > 300)
         {
@@ -93,7 +93,7 @@ public static class MultiBroadcast
 
         Id++;
 
-        var broadcast = new Broadcast(player, text, Id, onTop);
+        var broadcast = new Broadcast(player, text, Id, priority);
         Timing.RunCoroutine(AddPlayerBroadcastCoroutine(broadcast, duration),
             "MBroadcast" + Id);
         Log.Debug($"Added broadcast for {player.Nickname} with id {Id}");
@@ -135,11 +135,11 @@ public static class MultiBroadcast
 
         var broadcasts = sortOrder == BroadcastOrder.Desending
             ? PlayerBroadcasts[player.UserId]
-                .OrderByDescending(x => x.OnTop)
+                .OrderByDescending(x => x.Priority)
                 .ThenByDescending(y => y.Id)
                 .ToList()
             : PlayerBroadcasts[player.UserId]
-                .OrderByDescending(x => x.OnTop)
+                .OrderByDescending(x => x.Priority)
                 .ThenBy(y => y.Id)
                 .ToList();
 
@@ -229,7 +229,7 @@ public static class MultiBroadcast
             PlayerBroadcasts[broadcast.Player.UserId].Remove(broadcast);
             RefreshBroadcast(broadcast.Player);
             Timing.RunCoroutine(
-                AddPlayerBroadcastCoroutine(new Broadcast(broadcast.Player, text, id, broadcast.OnTop), duration),
+                AddPlayerBroadcastCoroutine(new Broadcast(broadcast.Player, text, id, broadcast.Priority), duration),
                 "MBroadcast" + id);
             Log.Debug($"Edited broadcast with id {id} to {text} with duration {duration}");
         }
@@ -267,13 +267,57 @@ public static class MultiBroadcast
             PlayerBroadcasts[broadcast.Player.UserId].Remove(broadcast);
             RefreshBroadcast(broadcast.Player);
             Timing.RunCoroutine(
-                AddPlayerBroadcastCoroutine(new Broadcast(broadcast.Player, text, broadcast.Id, broadcast.OnTop),
+                AddPlayerBroadcastCoroutine(new Broadcast(broadcast.Player, text, broadcast.Id, broadcast.Priority),
                     duration),
                 "MBroadcast" + broadcast.Id);
             Log.Debug($"Edited broadcast with id {broadcast.Id} to {text} with duration {duration}");
         }
 
         return true;
+    }
+
+    /// <summary>
+    ///     Sets the priority of a broadcast.
+    /// </summary>
+    /// <param name="priority">Priority to set.</param>
+    /// <param name="ids">Id of broadcasts to set the priority for.</param>
+    public static void SetPriority(byte priority, params int[] ids)
+    {
+        foreach (var id in ids)
+        {
+            var broadcast = GetBroadcast(id);
+
+            if (broadcast == null)
+            {
+                Log.Debug($"Error while setting priority: Broadcast with id {id} not found.");
+                return;
+            }
+
+            broadcast.Priority = priority;
+            Log.Debug($"Set priority of broadcast with id {id} to {priority}");
+            RefreshBroadcast(broadcast.Player);
+        }
+    }
+
+    /// <summary>
+    ///     Sets the priority of a broadcast.
+    /// </summary>
+    /// <param name="priority">Priority to set.</param>
+    /// <param name="broadcasts">Broadcasts to set the priority for.</param>
+    public static void SetPriority(byte priority, params Broadcast[] broadcasts)
+    {
+        foreach (var broadcast in broadcasts)
+        {
+            if (broadcast == null)
+            {
+                Log.Debug("Error while setting priority: Broadcast not found.");
+                return;
+            }
+
+            broadcast.Priority = priority;
+            Log.Debug($"Set priority of broadcast with id {broadcast.Id} to {priority}");
+            RefreshBroadcast(broadcast.Player);
+        }
     }
 
     /// <summary>
@@ -450,11 +494,11 @@ public static class BroadcastExtensions
     /// <param name="player">Player to send the broadcast to.</param>
     /// <param name="duration">Broadcast duration.</param>
     /// <param name="message">Text of the broadcast.</param>
-    /// <param name="onTop">Decides whether this broadcast must be fixed on top.</param>
-    /// <returns>The ID of the broadcast.</returns>
-    public static Broadcast AddPlayerBroadcast(this Player player, ushort duration, string message, bool onTop = false)
+    /// <param name="priority">Priority of the broadcast.</param>
+    /// <returns>The broadcast that was added.</returns>
+    public static Broadcast AddBroadcast(this Player player, ushort duration, string message, byte priority = 0)
     {
-        return MultiBroadcast.AddPlayerBroadcast(player, duration, message, onTop);
+        return MultiBroadcast.AddPlayerBroadcast(player, duration, message, priority);
     }
 
     /// <summary>
@@ -470,7 +514,7 @@ public static class BroadcastExtensions
     ///     Gets all broadcasts for a player.
     /// </summary>
     /// <param name="player">Player to get broadcasts for.</param>
-    /// <returns>All broadcasts for the player.</returns>
+    /// <returns>All broadcasts of the specified player.</returns>
     public static IEnumerable<Broadcast> GetBroadcasts(this Player player)
     {
         return MultiBroadcast.GetPlayerBroadcasts(player);
@@ -513,5 +557,15 @@ public static class PlayerBroadcastExtensions
     public static bool RemoveBroadcast(this Broadcast broadcast)
     {
         return MultiBroadcast.RemoveBroadcast(broadcast.Id);
+    }
+
+    /// <summary>
+    ///     Sets the priority of a broadcast.
+    /// </summary>
+    /// <param name="broadcast">The broadcast to set the priority for.</param>
+    /// <param name="priority">Priority to set.</param>
+    public static void SetPriority(this Broadcast broadcast, byte priority)
+    {
+        MultiBroadcast.SetPriority(priority, broadcast.Id);
     }
 }
