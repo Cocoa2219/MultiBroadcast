@@ -538,7 +538,7 @@ public static class PlayerBroadcastExtensions
     /// <param name="broadcast">The broadcast to edit.</param>
     /// <param name="text">New text for the broadcast.</param>
     /// <returns>True if the broadcast was successfully edited; otherwise, false.</returns>
-    public static bool EditBroadcast(this Broadcast broadcast, string text)
+    public static bool Edit(this Broadcast broadcast, string text)
     {
         return MultiBroadcast.EditBroadcast(text, broadcast.Id);
     }
@@ -550,7 +550,7 @@ public static class PlayerBroadcastExtensions
     /// <param name="text">New text for the broadcast.</param>
     /// <param name="duration">New duration for the broadcast.</param>
     /// <returns>True if the broadcast was successfully edited; otherwise, false.</returns>
-    public static bool EditBroadcast(this Broadcast broadcast, string text, ushort duration)
+    public static bool Edit(this Broadcast broadcast, string text, ushort duration)
     {
         return MultiBroadcast.EditBroadcast(text, duration, broadcast.Id);
     }
@@ -560,7 +560,7 @@ public static class PlayerBroadcastExtensions
     /// </summary>
     /// <param name="broadcast">The broadcast to remove.</param>
     /// <returns>True if the broadcast was successfully removed; otherwise, false.</returns>
-    public static bool RemoveBroadcast(this Broadcast broadcast)
+    public static bool Remove(this Broadcast broadcast)
     {
         return MultiBroadcast.RemoveBroadcast(broadcast.Id);
     }

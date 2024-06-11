@@ -68,12 +68,12 @@ All methods can be found in the `MultiBroadcast` class.
 
 ### Extension Methods (Broadcast)
 
-| Method                                          | Description                            | Returns                                           |
-|-------------------------------------------------|----------------------------------------|---------------------------------------------------|
-| `bool EditBroadcast(broadcast, text)`           | Edits a broadcast.                     | If the broadcast was successfully edited.         |
-| `bool EditBroadcast(broadcast, text, duration)` | Edits a broadcast with a new duration. | If the broadcast was successfully edited.         |
-| `bool RemoveBroadcast(broadcast)`               | Removes a broadcast.                   | If the broadcast was successfully removed.        |
-| `bool SetPriority(broadcast, priority)`         | Sets a broadcast's priority.           | If the broadcast's priority was successfully set. |
+| Method                                  | Description                            | Returns                                           |
+|-----------------------------------------|----------------------------------------|---------------------------------------------------|
+| `bool Edit(broadcast, text)`            | Edits a broadcast.                     | If the broadcast was successfully edited.         |
+| `bool Edit(broadcast, text, duration)`  | Edits a broadcast with a new duration. | If the broadcast was successfully edited.         |
+| `bool Remove(broadcast)`                | Removes a broadcast.                   | If the broadcast was successfully removed.        |
+| `bool SetPriority(broadcast, priority)` | Sets a broadcast's priority.           | If the broadcast's priority was successfully set. |
 
 ## API Examples
 
