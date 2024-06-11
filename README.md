@@ -6,11 +6,12 @@ Contains easy API.
 
 ## Configs
 
-| Name          | Default      | Type           | Description                                      |
-|---------------|--------------|----------------|--------------------------------------------------|
-| `is_enabled`  | `true`       | bool           | Indicates whether this plugin is enabled or not. |
-| `debug`       | `false`      | bool           | Indicates whether debug log is printed or not.   |
-| `order`       | `Descending` | BroadcastOrder | Indicates order of broadcasts.                   |
+| Name                       | Default      | Type           | Description                                      |
+|----------------------------|--------------|----------------|--------------------------------------------------|
+| `is_enabled`               | `true`       | bool           | Indicates whether this plugin is enabled or not. |
+| `debug`                    | `false`      | bool           | Indicates whether debug log is printed or not.   |
+| `order`                    | `Descending` | BroadcastOrder | Indicates order of broadcasts.                   |
+| `close_tags`               | `true`       | bool           | Automatically close tags in broadcasts.          |
 
 ### BroadcastOrder
 
@@ -94,8 +95,65 @@ public void UnregisterEvents()
 public void OnPlayerJoined(JoinedEventArgs ev) 
 {
     // Using an extension method
-    ev.Player.AddBroadcast(10, "Welcome to the server!", false);
-    // ... or MultiBroadcast.AddPlayerBroadcast(ev.Player, 10, "Welcome to the server!");
+    ev.Player.AddBroadcast(10, "Welcome to the server!", 0);
+    // ... or MultiBroadcast.AddPlayerBroadcast(ev.Player, 10, "Welcome to the server!", 0);
+}
+
+// ...
+```
+
+### Editing and removing broadcasts:
+```csharp
+// ...
+
+public void OnPlayerJoined(JoinedEventArgs ev) 
+{
+    // Adding and storing the broadcast
+    var broadcast = ev.Player.AddBroadcast(10, "Welcome to the server!", 0);
+    
+    // Editing the broadcast
+    broadcast.Edit("Welcome to the server! You are a VIP!");
+    
+    // Removing the broadcast
+    broadcast.Remove();
+    
+    // Clearing all broadcasts of the player
+    ev.Player.ClearPlayerBroadcasts();
+    
+    // Clearing all broadcasts
+    MultiBroadcast.ClearAllBroadcasts();
+}
+
+// ...
+
+```
+
+### Using a priority system:
+```csharp
+// ...
+
+public void OnPlayerJoined(JoinedEventArgs ev) 
+{
+    // Second broadcast will be shown upwards (top to bottom, can be changed in the config)
+    // Using this assembly as dependency will fix priority to descending
+    ev.Player.AddBroadcast(10, "Welcome to the server!", 0);
+    ev.Player.AddBroadcast(10, "You are a VIP!", 1);
+    
+    ev.Player.ClearPlayerBroadcasts();
+    
+    // If two broadcasts have the same priority, the one that was added last will be shown first
+    ev.Player.AddBroadcast(10, "This is first broadcast.", 1);
+    ev.Player.AddBroadcast(10, "This is second broadcast.", 1);
+    // will result:
+    // This is second broadcast.
+    // This is first broadcast.
+    
+    ev.Player.ClearPlayerBroadcasts();
+    
+    // Also you can change priority of a broadcast
+    var broadcast = ev.Player.AddBroadcast(10, "Welcome to the server!", 0);
+    
+    broadcast.SetPriority(1);
 }
 
 // ...

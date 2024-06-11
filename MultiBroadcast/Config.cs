@@ -16,6 +16,9 @@ namespace MultiBroadcast
             "Indicates order of broadcasts. Desending = newest broadcasts add on top, Ascending = newest broadcasts add on bottom"
         )]
         public BroadcastOrder Order { get; set; } = BroadcastOrder.Desending;
+
+        [Description("Indicates whether the plugin should automatically close tags or not.")]
+        public bool CloseTags { get; set; } = true;
     }
 
     public enum BroadcastOrder

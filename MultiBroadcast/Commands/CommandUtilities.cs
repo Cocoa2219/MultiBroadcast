@@ -6,7 +6,7 @@ namespace MultiBroadcast.Commands;
 /// <summary>
 ///     Command utilities.
 /// </summary>
-public static class Utilties
+public static class CommandUtilities
 {
     /// <summary>
     ///    Get the integer arguments from a string.

@@ -41,14 +41,14 @@ public class Remove : ICommand
                 response = $"Removed all broadcasts for {player.Nickname}";
                 return true;
             default:
-                if (!Utilties.GetIntArguments(arguments.At(0), out var ids))
+                if (!CommandUtilities.GetIntArguments(arguments.At(0), out var ids))
                 {
                     response = "Usage: mbroadcast edit <id> <text>";
                     return false;
                 }
 
                 var result = API.MultiBroadcast.RemoveBroadcast(ids);
-                var str = Utilties.GetStringFromArray(ids);
+                var str = CommandUtilities.GetStringFromArray(ids);
                 response = !result
                     ? $"Error on removing broadcast with id {str}"
                     : $"Removed broadcast with id {str}";

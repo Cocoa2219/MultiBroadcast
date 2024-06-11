@@ -109,6 +109,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API\BroadcastUtilities.cs" />
     <Compile Include="API\MultiBroadcast.cs" />
     <Compile Include="API\Broadcast.cs" />
     <Compile Include="Commands\MultiBroadcastParentCommand.cs" />
@@ -116,7 +117,7 @@
     <Compile Include="Commands\Subcommands\Edit.cs" />
     <Compile Include="Commands\Subcommands\List.cs" />
     <Compile Include="Commands\Subcommands\Remove.cs" />
-    <Compile Include="Commands\Utilties.cs" />
+    <Compile Include="Commands\CommandUtilities.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Patches\BroadcastPatch.cs" />

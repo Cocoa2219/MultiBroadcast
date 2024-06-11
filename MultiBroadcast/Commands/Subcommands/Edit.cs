@@ -19,7 +19,7 @@ public class Edit : ICommand
             return false;
         }
 
-        if (!Utilties.GetIntArguments(arguments.At(0), out var ids))
+        if (!CommandUtilities.GetIntArguments(arguments.At(0), out var ids))
         {
             response = "Usage: mbroadcast edit <id> <text>";
             return false;
@@ -28,7 +28,7 @@ public class Edit : ICommand
         var text = string.Join(" ", arguments.Skip(1));
 
         var result = API.MultiBroadcast.EditBroadcast(text, ids);
-        var str = Utilties.GetStringFromArray(ids);
+        var str = CommandUtilities.GetStringFromArray(ids);
         response = !result
             ? $"Error on editing broadcast with id {str}"
             : $"Edited broadcast with id {str} to {text}";

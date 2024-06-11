@@ -14,7 +14,8 @@ public static class MultiBroadcast
     static MultiBroadcast()
     {
         Server.RestartingRound += OnRestarting;
-        Log.Debug("MultiBroadcast class initialized and subscribed to Server.RestartingRound event.");
+        IsDependency = Plugin.Instance == null;
+        Log.Debug("MultiBroadcast class initialized.");
     }
 
     private static void OnRestarting()
@@ -22,6 +23,8 @@ public static class MultiBroadcast
         Log.Debug("OnRestarting event triggered.");
         RestartBroadcasts();
     }
+
+    private static readonly bool IsDependency;
 
     /// <summary>
     ///     Dictionary that contains all broadcasts for each player.
@@ -48,6 +51,11 @@ public static class MultiBroadcast
         {
             Log.Debug($"AddMapBroadcast early return due to invalid duration: {duration}");
             return null;
+        }
+
+        if (IsDependency || Plugin.Instance.Config.CloseTags)
+        {
+            text = BroadcastUtilities.AutoCloseTags(text);
         }
 
         var broadcasts = new List<Broadcast>();
@@ -91,6 +99,11 @@ public static class MultiBroadcast
             return null;
         }
 
+        if (IsDependency || Plugin.Instance.Config.CloseTags)
+        {
+            text = BroadcastUtilities.AutoCloseTags(text);
+        }
+
         Id++;
 
         var broadcast = new Broadcast(player, text, Id, priority);
@@ -130,8 +143,7 @@ public static class MultiBroadcast
         if (!PlayerBroadcasts.ContainsKey(player.UserId))
             return;
 
-        var isDependecy = Plugin.Instance == null;
-        var sortOrder = isDependecy ? BroadcastOrder.Desending : Plugin.Instance.Config.Order;
+        var sortOrder = IsDependency ? BroadcastOrder.Desending : Plugin.Instance.Config.Order;
 
         var broadcasts = sortOrder == BroadcastOrder.Desending
             ? PlayerBroadcasts[player.UserId]
