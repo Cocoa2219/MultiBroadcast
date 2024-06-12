@@ -43,7 +43,7 @@ public class Remove : ICommand
             default:
                 if (!CommandUtilities.GetIntArguments(arguments.At(0), out var ids))
                 {
-                    response = "Usage: mbroadcast edit <id> <text>";
+                    response = "Usage: mbroadcast remove <id> <text>";
                     return false;
                 }
 

@@ -69,7 +69,7 @@ public static class MultiBroadcast
                 continue;
             Id++;
 
-            var broadcast = new Broadcast(player, text, Id, priority);
+            var broadcast = new Broadcast(player, text, Id, duration, priority);
 
             Timing.RunCoroutine(AddPlayerBroadcastCoroutine(broadcast, duration),
                 "MBroadcast" + Id);
@@ -106,7 +106,7 @@ public static class MultiBroadcast
 
         Id++;
 
-        var broadcast = new Broadcast(player, text, Id, priority);
+        var broadcast = new Broadcast(player, text, Id, duration, priority);
         Timing.RunCoroutine(AddPlayerBroadcastCoroutine(broadcast, duration),
             "MBroadcast" + Id);
         Log.Debug($"Added broadcast for {player.Nickname} with id {Id}");
@@ -143,9 +143,9 @@ public static class MultiBroadcast
         if (!PlayerBroadcasts.ContainsKey(player.UserId))
             return;
 
-        var sortOrder = IsDependency ? BroadcastOrder.Desending : Plugin.Instance.Config.Order;
+        var sortOrder = IsDependency ? BroadcastOrder.Descending : Plugin.Instance.Config.Order;
 
-        var broadcasts = sortOrder == BroadcastOrder.Desending
+        var broadcasts = sortOrder == BroadcastOrder.Descending
             ? PlayerBroadcasts[player.UserId]
                 .OrderByDescending(x => x.Priority)
                 .ThenByDescending(y => y.Id)
@@ -243,7 +243,7 @@ public static class MultiBroadcast
             PlayerBroadcasts[broadcast.Player.UserId].Remove(broadcast);
             RefreshBroadcast(broadcast.Player);
             Timing.RunCoroutine(
-                AddPlayerBroadcastCoroutine(new Broadcast(broadcast.Player, text, id, broadcast.Priority), duration),
+                AddPlayerBroadcastCoroutine(new Broadcast(broadcast.Player, text, id, duration, broadcast.Priority), duration),
                 "MBroadcast" + id);
             Log.Debug($"Edited broadcast with id {id} to {text} with duration {duration}");
         }
@@ -281,7 +281,7 @@ public static class MultiBroadcast
             PlayerBroadcasts[broadcast.Player.UserId].Remove(broadcast);
             RefreshBroadcast(broadcast.Player);
             Timing.RunCoroutine(
-                AddPlayerBroadcastCoroutine(new Broadcast(broadcast.Player, text, broadcast.Id, broadcast.Priority),
+                AddPlayerBroadcastCoroutine(new Broadcast(broadcast.Player, text, duration, broadcast.Id, broadcast.Priority),
                     duration),
                 "MBroadcast" + broadcast.Id);
             Log.Debug($"Edited broadcast with id {broadcast.Id} to {text} with duration {duration}");

@@ -22,10 +22,10 @@ public class Broadcast
     /// </summary>
     public int Id { get; }
 
-    // /// <summary>
-    // /// Gets a value indicating whether the broadcast should be displayed on top.
-    // /// </summary>
-    // public bool OnTop { get; }
+    /// <summary>
+    /// Gets the duration of the broadcast.
+    /// </summary>
+    public int Duration { get; }
 
     /// <summary>
     /// Gets or sets the priority of the broadcast.
@@ -38,12 +38,14 @@ public class Broadcast
     /// <param name="player">The player to whom the broadcast is sent.</param>
     /// <param name="text">The text of the broadcast.</param>
     /// <param name="id">The ID of the broadcast.</param>
+    /// <param name="duration">The duration of the broadcast.</param>
     /// <param name="priority">The priority of the broadcast.</param>
-    public Broadcast(Player player, string text, int id, byte priority = 0)
+    public Broadcast(Player player, string text, int id, int duration, byte priority = 0)
     {
         Player = player;
         Text = text;
         Id = id;
         Priority = priority;
+        Duration = duration;
     }
 }

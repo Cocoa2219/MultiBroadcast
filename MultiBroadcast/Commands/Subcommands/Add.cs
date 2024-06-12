@@ -38,8 +38,10 @@ public class Add : ICommand
 
                 text = string.Join(" ", arguments.Skip(2));
 
-                var ids = API.MultiBroadcast.AddMapBroadcast(duration, text);
-                response = ids == null ? "Error on adding broadcast" : $"Added broadcast for all players with id {string.Join(", ", ids)}";
+                var bcs = API.MultiBroadcast.AddMapBroadcast(duration, text);
+                var ids = bcs?.Select(bc => bc.Id).ToArray();
+
+                response = bcs == null ? "Error on adding broadcast" : $"Added broadcast for all players with id {string.Join(", ", ids)}";
                 return true;
             case 'p':
                 if (arguments.Count < 4)
@@ -64,9 +66,10 @@ public class Add : ICommand
 
                 text = string.Join(" ", arguments.Skip(3));
 
-                var id = API.MultiBroadcast.AddPlayerBroadcast(player, duration, text);
+                var bc = API.MultiBroadcast.AddPlayerBroadcast(player, duration, text);
+                var id = bc?.Id;
 
-                response = id == null ? $"Error on adding broadcast to {player.Nickname}" : $"Added broadcast for {player.Nickname} with id {id}";
+                response = bc == null ? $"Error on adding broadcast to {player.Nickname}" : $"Added broadcast for {player.Nickname} with id {id}";
                 return true;
             default:
                 response = "Usage: mbroadcast add <map/player>";

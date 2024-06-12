@@ -15,13 +15,13 @@ namespace MultiBroadcast
         [Description("Indicates whether the plugin should replace the broadcast command or not.")]
         public bool ReplaceBroadcastCommand { get; set; } = true;
 
-        [Description("Indicates whether the plugin should replace the Exiled broadcast method or not.")]
-        public bool CompatibilityMode { get; set; } = false;
+        // [Description("Indicates whether the plugin should replace the Exiled broadcast method or not.")]
+        // public bool CompatibilityMode { get; set; } = false;
 
         [Description(
-            "Indicates order of broadcasts. Desending = newest broadcasts add on top, Ascending = newest broadcasts add on bottom"
+            "Indicates order of broadcasts. Descending = newest broadcasts add on top, Ascending = newest broadcasts add on bottom"
         )]
-        public BroadcastOrder Order { get; set; } = BroadcastOrder.Desending;
+        public BroadcastOrder Order { get; set; } = BroadcastOrder.Descending;
 
         [Description("Indicates whether the plugin should automatically close tags or not.")]
         public bool CloseTags { get; set; } = true;
@@ -29,7 +29,7 @@ namespace MultiBroadcast
 
     public enum BroadcastOrder
     {
-        Desending,
+        Descending,
         Ascending
     }
 }

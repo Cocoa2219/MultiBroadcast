@@ -33,7 +33,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <PostBuildEvent>xcopy /y /s /i /d "C:\Users\user\Documents\MultiBroadcast\MultiBroadcast\bin\Release\MultiBroadcast.dll" "C:\Users\user\AppData\Roaming\EXILED\Plugins"</PostBuildEvent>
+    <PostBuildEvent>xcopy /y /s /i /d "C:\Users\PC\Documents\MultiBroadcast\MultiBroadcast\bin\Release\MultiBroadcast.dll" "C:\Users\PC\AppData\Roaming\EXILED\Plugins"</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -94,6 +94,9 @@
     <Reference Include="PluginAPI, Version=13.1.2.0, Culture=neutral, processorArchitecture=Amd64">
       <HintPath>..\packages\EXILED.8.9.5\lib\net48\PluginAPI.dll</HintPath>
     </Reference>
+    <Reference Include="Pooling">
+      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\SCP Secret Laboratory Dedicated Server\SCPSL_Data\Managed\Pooling.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
@@ -120,6 +123,7 @@
     <Compile Include="Commands\CommandUtilities.cs" />
     <Compile Include="Commands\Subcommands\SetPriority.cs" />
     <Compile Include="Config.cs" />
+    <Compile Include="Patches\ProcessQueryPatch.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Patches\BroadcastPatch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
