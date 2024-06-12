@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using CommandSystem;
 using MultiBroadcast.Commands.Subcommands;
 
@@ -21,20 +22,13 @@ public class MultiBroadcastParentCommand : ParentCommand
         RegisterCommand(new Edit());
         RegisterCommand(new Remove());
         RegisterCommand(new List());
+        RegisterCommand(new SetPriority());
     }
 
     /// <inheritdoc />
     protected override bool ExecuteParent(ArraySegment<string> arguments, ICommandSender sender, [UnscopedRef] out string response)
     {
-        response = "\nPlease enter a valid subcommand:";
-
-        foreach (ICommand command in AllCommands)
-        {
-            if (sender.CheckPermission(PlayerPermissions.Broadcasting, out _))
-            {
-                response += $"\n\n<color=yellow><b>- {command.Command} ({string.Join(", ", command.Aliases)})</b></color>\n<color=white>{command.Description}</color>";
-            }
-        }
+        response = AllCommands.Where(command => sender.CheckPermission(PlayerPermissions.Broadcasting, out _)).Aggregate("\nPlease enter a valid subcommand:", (current, command) => current + $"\n\n<color=yellow><b>- {command.Command} ({string.Join(", ", command.Aliases)})</b></color>\n<color=white>{command.Description}</color>");
 
         return false;
     }

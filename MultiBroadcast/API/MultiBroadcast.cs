@@ -156,7 +156,9 @@ public static class MultiBroadcast
                 .ToList();
 
         var writtenText = string.Join("\n", broadcasts.Select(b => b.Text));
-        player.Broadcast(120, writtenText, global::Broadcast.BroadcastFlags.Normal, true);
+
+        PluginAPI.Core.Server.Broadcast.TargetClearElements(player.Connection);
+        PluginAPI.Core.Server.Broadcast.TargetAddElement(player.Connection, writtenText, 300, global::Broadcast.BroadcastFlags.Normal);
     }
 
     /// <summary>

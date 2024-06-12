@@ -7,15 +7,21 @@ using HarmonyLib;
 using NorthwoodLib.Pools;
 using Utils;
 using BroadcastCommand = CommandSystem.Commands.RemoteAdmin.Broadcasts.BroadcastCommand;
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
 namespace MultiBroadcast.Patches;
 
 [HarmonyPatch(typeof(ClearBroadcastCommand), nameof(ClearBroadcastCommand.Execute))]
 internal class ClearBroadcastPatch
 {
-    public static bool Prefix(ArraySegment<string> arguments, ICommandSender sender, out string response,
+    public static bool Prefix(ArraySegment<string> arguments, ICommandSender sender, ref string response,
         ref bool __result)
     {
+        if (!Plugin.Instance.Config.ReplaceBroadcastCommand)
+        {
+            return true;
+        }
+
         if (!sender.CheckPermission(PlayerPermissions.Broadcasting, out response))
         {
             __result = false;
@@ -35,8 +41,13 @@ internal class ClearBroadcastPatch
 internal class BroadcastPatch
 {
     public static bool Prefix(BroadcastCommand __instance, ArraySegment<string> arguments, ICommandSender sender,
-        out string response, ref bool __result)
+        ref string response, ref bool __result)
     {
+        if (!Plugin.Instance.Config.ReplaceBroadcastCommand)
+        {
+            return true;
+        }
+
         var text = arguments.At(0);
         if (!__instance.IsValidDuration(text, out var time))
         {
@@ -61,8 +72,13 @@ internal class BroadcastPatch
 internal class PlayerBroadcastPatch
 {
     public static bool Prefix(PlayerBroadcastCommand __instance, ArraySegment<string> arguments, ICommandSender sender,
-        out string response, ref bool __result)
+        ref string response, ref bool __result)
     {
+        if (!Plugin.Instance.Config.ReplaceBroadcastCommand)
+        {
+            return true;
+        }
+
         var list = RAUtils.ProcessPlayerIdOrNamesList(arguments, 0, out var array);
         if (array == null || array.Length < __instance.MinimumArguments)
         {
@@ -73,8 +89,7 @@ internal class PlayerBroadcastPatch
         }
 
         var text = array[0];
-        ushort num;
-        if (!__instance.IsValidDuration(text, out num))
+        if (!__instance.IsValidDuration(text, out var num))
         {
             response = string.Concat("Invalid argument for duration: ", text, " Usage: ", arguments.At(0), " ",
                 __instance.DisplayCommandUsage());
@@ -108,6 +123,44 @@ internal class PlayerBroadcastPatch
         ListPool<Player>.Shared.Return(ls);
         ListPool<int>.Shared.Return(ids);
         __result = true;
+        return false;
+    }
+}
+
+[HarmonyPatch(typeof(Player), nameof(Player.Broadcast), [typeof(ushort), typeof(string), typeof(Broadcast.BroadcastFlags), typeof(bool)])]
+public class ExiledBroadcastPatch
+{
+    public static bool Prefix(Player __instance, ushort duration, string message, Broadcast.BroadcastFlags type, bool shouldClearPrevious)
+    {
+        if (!Plugin.Instance.Config.CompatibilityMode)
+        {
+            return true;
+        }
+
+        if (type != Broadcast.BroadcastFlags.Normal) return true;
+        if (shouldClearPrevious) API.MultiBroadcast.ClearPlayerBroadcasts(__instance);
+
+        API.MultiBroadcast.AddPlayerBroadcast(__instance, duration, message);
+        return false;
+    }
+}
+
+[HarmonyPatch(typeof(Player), nameof(Player.Broadcast), [typeof(Exiled.API.Features.Broadcast), typeof(bool)])]
+public class ExiledBroadcastPatch2
+{
+    public static bool Prefix(Player __instance, Exiled.API.Features.Broadcast broadcast, bool shouldClearPrevious)
+    {
+        if (!Plugin.Instance.Config.CompatibilityMode)
+        {
+            return true;
+        }
+
+        if (broadcast.Type != Broadcast.BroadcastFlags.Normal) return true;
+
+        if (!broadcast.Show) return false;
+        if (shouldClearPrevious) API.MultiBroadcast.ClearPlayerBroadcasts(__instance);
+
+        API.MultiBroadcast.AddPlayerBroadcast(__instance, broadcast.Duration, broadcast.Content);
         return false;
     }
 }

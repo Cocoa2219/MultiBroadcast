@@ -43,5 +43,4 @@ public static class CommandUtilities
     {
         return string.Join(", ", array);
     }
-
 }
