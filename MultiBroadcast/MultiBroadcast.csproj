@@ -112,7 +112,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="API\BroadcastUtilities.cs" />
     <Compile Include="API\MultiBroadcast.cs" />
     <Compile Include="API\Broadcast.cs" />
     <Compile Include="Commands\MultiBroadcastParentCommand.cs" />

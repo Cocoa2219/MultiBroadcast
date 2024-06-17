@@ -15,13 +15,13 @@ public class Edit : ICommand
     {
         if (arguments.Count < 2)
         {
-            response = "Usage: mbroadcast edit <id> <text>";
+            response = "Usage: multibroadcast edit <id> <text>";
             return false;
         }
 
         if (!CommandUtilities.GetIntArguments(arguments.At(0), out var ids))
         {
-            response = "Usage: mbroadcast edit <id> <text>";
+            response = "Usage: multibroadcast edit <id> <text>";
             return false;
         }
 

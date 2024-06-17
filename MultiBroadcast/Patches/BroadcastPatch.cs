@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using CommandSystem;
 using CommandSystem.Commands.RemoteAdmin.Broadcasts;
@@ -131,41 +130,3 @@ internal class PlayerBroadcastPatch
         return false;
     }
 }
-
-// [HarmonyPatch(typeof(Player), nameof(Player.Broadcast), [typeof(ushort), typeof(string), typeof(Broadcast.BroadcastFlags), typeof(bool)])]
-// public class ExiledBroadcastPatch
-// {
-//     public static bool Prefix(Player __instance, ushort duration, string message, Broadcast.BroadcastFlags type, bool shouldClearPrevious)
-//     {
-//         if (!Plugin.Instance.Config.CompatibilityMode)
-//         {
-//             return true;
-//         }
-//
-//         if (type != Broadcast.BroadcastFlags.Normal) return true;
-//         if (shouldClearPrevious) API.MultiBroadcast.ClearPlayerBroadcasts(__instance);
-//
-//         API.MultiBroadcast.AddPlayerBroadcast(__instance, duration, message);
-//         return false;
-//     }
-// }
-//
-// [HarmonyPatch(typeof(Player), nameof(Player.Broadcast), [typeof(Exiled.API.Features.Broadcast), typeof(bool)])]
-// public class ExiledBroadcastPatch2
-// {
-//     public static bool Prefix(Player __instance, Exiled.API.Features.Broadcast broadcast, bool shouldClearPrevious)
-//     {
-//         if (!Plugin.Instance.Config.CompatibilityMode)
-//         {
-//             return true;
-//         }
-//
-//         if (broadcast.Type != Broadcast.BroadcastFlags.Normal) return true;
-//
-//         if (!broadcast.Show) return false;
-//         if (shouldClearPrevious) API.MultiBroadcast.ClearPlayerBroadcasts(__instance);
-//
-//         API.MultiBroadcast.AddPlayerBroadcast(__instance, broadcast.Duration, broadcast.Content);
-//         return false;
-//     }
-// }

@@ -14,7 +14,7 @@ public class Add : ICommand
     {
         if (arguments.Count < 1)
         {
-            response = "Usage: mbroadcast add <map/player>";
+            response = "Usage: multibroadcast add <map/player>";
             return false;
         }
 
@@ -26,13 +26,13 @@ public class Add : ICommand
             case 'm':
                 if (arguments.Count < 3)
                 {
-                    response = "Usage: mbroadcast add map <duration> <text>";
+                    response = "Usage: multibroadcast add map <duration> <text>";
                     return false;
                 }
 
                 if (!ushort.TryParse(arguments.At(1), out var duration))
                 {
-                    response = "Usage: mbroadcast add map <duration> <text>";
+                    response = "Usage: multibroadcast add map <duration> <text>";
                     return false;
                 }
 
@@ -46,7 +46,7 @@ public class Add : ICommand
             case 'p':
                 if (arguments.Count < 4)
                 {
-                    response = "Usage: mbroadcast add player <player> <duration> <text>";
+                    response = "Usage: multibroadcast add player <player> <duration> <text>";
                     return false;
                 }
 
@@ -60,7 +60,7 @@ public class Add : ICommand
 
                 if (!ushort.TryParse(arguments.At(2), out duration))
                 {
-                    response = "Usage: mbroadcast add player <player> <duration> <text>";
+                    response = "Usage: multibroadcast add player <player> <duration> <text>";
                     return false;
                 }
 
@@ -72,7 +72,7 @@ public class Add : ICommand
                 response = bc == null ? $"Error on adding broadcast to {player.Nickname}" : $"Added broadcast for {player.Nickname} with id {id}";
                 return true;
             default:
-                response = "Usage: mbroadcast add <map/player>";
+                response = "Usage: multibroadcast add <map/player>";
                 return false;
         }
     }

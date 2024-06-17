@@ -2,7 +2,6 @@
 using System.Diagnostics.CodeAnalysis;
 using CommandSystem;
 using Exiled.API.Features;
-using MultiBroadcast.API;
 
 namespace MultiBroadcast.Commands.Subcommands;
 
@@ -16,7 +15,7 @@ public class Remove : ICommand
     {
         if (arguments.Count < 1)
         {
-            response = "Usage: mbroadcast remove <all/player/id>";
+            response = "Usage: multibroadcast remove <all/player/id>";
             return false;
         }
 
@@ -31,7 +30,7 @@ public class Remove : ICommand
             case 'p':
                 if (arguments.Count < 2)
                 {
-                    response = "Usage: mbroadcast remove player <player>";
+                    response = "Usage: multibroadcast remove player <player>";
                     return false;
                 }
 
@@ -43,7 +42,7 @@ public class Remove : ICommand
             default:
                 if (!CommandUtilities.GetIntArguments(arguments.At(0), out var ids))
                 {
-                    response = "Usage: mbroadcast remove <id> <text>";
+                    response = "Usage: multibroadcast remove <id> <text>";
                     return false;
                 }
 

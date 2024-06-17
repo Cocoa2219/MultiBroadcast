@@ -12,19 +12,19 @@ public class SetPriority : ICommand
     {
         if (arguments.Count < 2)
         {
-            response = "Usage: mbroadcast setpriority <id> <priority>";
+            response = "Usage: multibroadcast setpriority <id> <priority>";
             return false;
         }
 
         if (!CommandUtilities.GetIntArguments(arguments.At(0), out var ids))
         {
-            response = "Usage: mbroadcast setpriority <id> <priority>";
+            response = "Usage: multibroadcast setpriority <id> <priority>";
             return false;
         }
 
         if (!byte.TryParse(arguments.At(1), out var priority))
         {
-            response = "Usage: mbroadcast setpriority <id> <priority>";
+            response = "Usage: multibroadcast setpriority <id> <priority>";
             return false;
         }
 

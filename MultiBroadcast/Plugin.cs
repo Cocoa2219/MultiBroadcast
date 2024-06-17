@@ -1,9 +1,6 @@
 ﻿using System;
 using Exiled.API.Features;
-using Exiled.Events.EventArgs.Player;
 using HarmonyLib;
-using PlayerRoles.PlayableScps.Scp939;
-using Player = Exiled.Events.Handlers.Player;
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Exiled.API.Features;
 using MEC;
@@ -9,6 +10,7 @@ namespace MultiBroadcast.API;
 /// <summary>
 ///     Class that handles all broadcasts.
 /// </summary>
+[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public static class MultiBroadcast
 {
     static MultiBroadcast()
@@ -53,11 +55,6 @@ public static class MultiBroadcast
             return null;
         }
 
-        if (IsDependency || Plugin.Instance.Config.CloseTags)
-        {
-            text = BroadcastUtilities.AutoCloseTags(text);
-        }
-
         var broadcasts = new List<Broadcast>();
 
         foreach (var player in Player.List)
@@ -97,11 +94,6 @@ public static class MultiBroadcast
         {
             Log.Debug($"AddPlayerBroadcast early return for player {player?.Nickname} due to invalid parameters.");
             return null;
-        }
-
-        if (IsDependency || Plugin.Instance.Config.CloseTags)
-        {
-            text = BroadcastUtilities.AutoCloseTags(text);
         }
 
         Id++;
