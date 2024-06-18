@@ -28,7 +28,9 @@ public class List : ICommand
 
             var strb = new StringBuilder($"\n<b>{player.Nickname}'s Broadcast List:</b>\n");
             foreach (var bc in player.GetBroadcasts().Select(broadcast => broadcast))
-                strb.Append($" - ID: {bc.Id}, Duration: {bc.Duration}, Priority: {bc.Priority}, Text: {bc.Text}\n");
+                strb.Append(string.IsNullOrEmpty(bc.Tag)
+                    ? $" - ID: {bc.Id}, Duration: {bc.Duration}, Priority: {bc.Priority}, Text: {bc.Text}\n"
+                    : $" - ID: {bc.Id}, Duration: {bc.Duration}, Priority: {bc.Priority}, Tag: {bc.Tag}, Text: {bc.Text}\n");
 
             if (player.GetBroadcasts().ToList().Count == 0)
                 strb.Append("No broadcasts found.");
@@ -39,7 +41,9 @@ public class List : ICommand
 
         var sb = new StringBuilder("\n<b>Current Broadcast List:</b>\n");
         foreach (var bc in API.MultiBroadcast.GetAllBroadcasts().Values.SelectMany(broadcasts => broadcasts))
-            sb.Append($" - ID: {bc.Id}, Player: {bc.Player.Nickname}, Duration: {bc.Duration}, Priority: {bc.Priority}, Text: {bc.Text}\n");
+            sb.Append(string.IsNullOrEmpty(bc.Tag)
+                ? $" - ID: {bc.Id}, Duration: {bc.Duration}, Priority: {bc.Priority}, Text: {bc.Text}\n"
+                : $" - ID: {bc.Id}, Duration: {bc.Duration}, Priority: {bc.Priority}, Tag: {bc.Tag}, Text: {bc.Text}\n");
 
         if (API.MultiBroadcast.GetAllBroadcasts().Count == 0)
             sb.Append("No broadcasts found.");

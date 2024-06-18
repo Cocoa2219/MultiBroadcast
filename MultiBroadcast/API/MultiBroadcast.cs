@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Exiled.API.Features;
+using Exiled.Events.EventArgs.Player;
 using MEC;
 using Server = Exiled.Events.Handlers.Server;
 
@@ -16,6 +17,7 @@ public static class MultiBroadcast
     static MultiBroadcast()
     {
         Server.RestartingRound += OnRestarting;
+        Exiled.Events.Handlers.Player.Left += OnLeft;
         IsDependency = Plugin.Instance == null;
         Log.Debug("MultiBroadcast class initialized.");
     }
@@ -26,6 +28,14 @@ public static class MultiBroadcast
         RestartBroadcasts();
     }
 
+    private static void OnLeft(LeftEventArgs ev)
+    {
+        if (ev.Player == null)
+            return;
+
+        PlayerBroadcasts.Remove(ev.Player.UserId);
+    }
+
     private static readonly bool IsDependency;
 
     /// <summary>
@@ -34,9 +44,9 @@ public static class MultiBroadcast
     private static Dictionary<string, List<Broadcast>> PlayerBroadcasts { get; } = new();
 
     /// <summary>
-    ///     Gets the ID of the broadcast.
+    ///     Gets the ID of the broadcast that was last added.
     /// </summary>
-    private static int Id { get; set; }
+    public static int Id { get; private set; }
 
     /// <summary>
     ///     Adds a broadcast to all players.
@@ -44,10 +54,13 @@ public static class MultiBroadcast
     /// <param name="duration">Broadcast duration.</param>
     /// <param name="text">Text of the broadcast.</param>
     /// <param name="priority">Priority of the broadcast.</param>
+    /// <param name="tag">Tag of the broadcast.</param>
     /// <returns>Broadcasts that were added.</returns>
-    public static IEnumerable<Broadcast> AddMapBroadcast(ushort duration, string text, byte priority = 0)
+    /// <remarks>Duration must be between 1 and 300. (NW Moment)</remarks>
+    public static IEnumerable<Broadcast> AddMapBroadcast(ushort duration, string text, byte priority = 0,
+        string tag = "")
     {
-        Log.Debug($"AddMapBroadcast called with duration: {duration}, text: {text}, priority: {priority}");
+        Log.Debug($"AddMapBroadcast called with duration: {duration}, text: {text}, priority: {priority}, tag: {tag}");
 
         if (duration is 0 or > 300)
         {
@@ -64,9 +77,10 @@ public static class MultiBroadcast
 
             if (player.IsNPC)
                 continue;
+
             Id++;
 
-            var broadcast = new Broadcast(player, text, Id, duration, priority);
+            var broadcast = new Broadcast(player, text, Id, duration, priority, tag);
 
             Timing.RunCoroutine(AddPlayerBroadcastCoroutine(broadcast, duration),
                 "MBroadcast" + Id);
@@ -85,10 +99,14 @@ public static class MultiBroadcast
     /// <param name="duration">Broadcast duration.</param>
     /// <param name="text">Text of the broadcast.</param>
     /// <param name="priority">Priority of the broadcast.</param>
-    /// <returns>The broadcast that was added.</returns>
-    public static Broadcast AddPlayerBroadcast(Player player, ushort duration, string text, byte priority = 0)
+    /// <param name="tag">Tag of the broadcast.</param>
+    /// <returns>The broadcast that was added.</returns>4
+    /// <remarks>Duration must be between 1 and 300. (NW Moment)</remarks>
+    public static Broadcast AddPlayerBroadcast(Player player, ushort duration, string text, byte priority = 0,
+        string tag = "")
     {
-        Log.Debug($"AddPlayerBroadcast called for player {player?.Nickname}, duration: {duration}, text: {text}, priority: {priority}");
+        Log.Debug(
+            $"AddPlayerBroadcast called for player {player?.Nickname}, duration: {duration}, text: {text}, priority: {priority}, tag: {tag}");
 
         if (player == null || player.IsNPC || duration == 0 || duration > 300)
         {
@@ -98,7 +116,7 @@ public static class MultiBroadcast
 
         Id++;
 
-        var broadcast = new Broadcast(player, text, Id, duration, priority);
+        var broadcast = new Broadcast(player, text, Id, duration, priority, tag);
         Timing.RunCoroutine(AddPlayerBroadcastCoroutine(broadcast, duration),
             "MBroadcast" + Id);
         Log.Debug($"Added broadcast for {player.Nickname} with id {Id}");
@@ -108,7 +126,8 @@ public static class MultiBroadcast
 
     private static IEnumerator<float> AddPlayerBroadcastCoroutine(Broadcast broadcast, ushort duration)
     {
-        Log.Debug($"AddPlayerBroadcastCoroutine started for player {broadcast.Player.Nickname} with duration {duration}");
+        Log.Debug(
+            $"AddPlayerBroadcastCoroutine started for player {broadcast.Player.Nickname} with duration {duration}");
 
         var player = broadcast.Player;
         var playerId = player.UserId;
@@ -150,7 +169,8 @@ public static class MultiBroadcast
         var writtenText = string.Join("\n", broadcasts.Select(b => b.Text));
 
         PluginAPI.Core.Server.Broadcast.TargetClearElements(player.Connection);
-        PluginAPI.Core.Server.Broadcast.TargetAddElement(player.Connection, writtenText, 300, global::Broadcast.BroadcastFlags.Normal);
+        PluginAPI.Core.Server.Broadcast.TargetAddElement(player.Connection, writtenText, 300,
+            global::Broadcast.BroadcastFlags.Normal);
     }
 
     /// <summary>
@@ -197,6 +217,35 @@ public static class MultiBroadcast
 
             broadcast.Text = text;
             Log.Debug($"Edited broadcast with id {broadcast.Id} to {text}");
+            RefreshBroadcast(broadcast.Player);
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    ///     Edits a broadcast.
+    /// </summary>
+    /// <param name="text">New text for the broadcast.</param>
+    /// <param name="tag">Tag of the broadcast to edit.</param>
+    /// <returns>True if the broadcast was successfully edited; otherwise, false.</returns>
+    public static bool EditBroadcast(string text, string tag)
+    {
+        var broadcasts = PlayerBroadcasts.Values
+            .SelectMany(broadcasts => broadcasts)
+            .Where(broadcast => broadcast.Tag == tag)
+            .ToList();
+
+        if (broadcasts.Count == 0)
+        {
+            Log.Debug($"Error while editing: Broadcast with tag {tag} not found.");
+            return false;
+        }
+
+        foreach (var broadcast in broadcasts)
+        {
+            broadcast.Text = text;
+            Log.Debug($"Edited broadcast with tag {tag} to {text}");
             RefreshBroadcast(broadcast.Player);
         }
 
@@ -283,6 +332,50 @@ public static class MultiBroadcast
     }
 
     /// <summary>
+    ///    Edits a broadcast with a new duration.
+    /// </summary>
+    /// <param name="text">New text for the broadcast.</param>
+    /// <param name="duration">New duration for the broadcast.</param>
+    /// <param name="tag">Tag of the broadcast to edit.</param>
+    /// <returns>True if the broadcast was successfully edited; otherwise, false.</returns>
+    public static bool EditBroadcast(string text, ushort duration, string tag)
+    {
+        switch (duration)
+        {
+            case 0:
+                return EditBroadcast(text, tag);
+            case > 300:
+                Log.Debug("Error while editing: Duration exceeds the maximum allowed value.");
+                return false;
+        }
+
+        var broadcasts = PlayerBroadcasts.Values
+            .SelectMany(broadcasts => broadcasts)
+            .Where(broadcast => broadcast.Tag == tag)
+            .ToList();
+
+        if (broadcasts.Count == 0)
+        {
+            Log.Debug($"Error while editing: Broadcast with tag {tag} not found.");
+            return false;
+        }
+
+        foreach (var broadcast in broadcasts)
+        {
+            Timing.KillCoroutines("MBroadcast" + broadcast.Id);
+            PlayerBroadcasts[broadcast.Player.UserId].Remove(broadcast);
+            RefreshBroadcast(broadcast.Player);
+            Timing.RunCoroutine(
+                AddPlayerBroadcastCoroutine(new Broadcast(broadcast.Player, text, broadcast.Id, duration, broadcast.Priority, tag),
+                    duration),
+                "MBroadcast" + broadcast.Id);
+            Log.Debug($"Edited broadcast with tag {tag} to {text} with duration {duration}");
+        }
+
+        return true;
+    }
+
+    /// <summary>
     ///     Sets the priority of a broadcast.
     /// </summary>
     /// <param name="priority">Priority to set.</param>
@@ -326,6 +419,30 @@ public static class MultiBroadcast
 
             broadcast.Priority = priority;
             Log.Debug($"Set priority of broadcast with id {broadcast.Id} to {priority}");
+            RefreshBroadcast(broadcast.Player);
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    ///     Sets the tag of the broadcast.
+    /// </summary>
+    /// <param name="tag">Tag to set.</param>
+    /// <param name="broadcasts">Broadcasts to set the tag for.</param>
+    /// <returns>True if the broadcasts were tag was successfully set; otherwise, false.</returns>
+    public static bool SetTag(string tag, params Broadcast[] broadcasts)
+    {
+        foreach (var broadcast in broadcasts)
+        {
+            if (broadcast == null)
+            {
+                Log.Debug("Error while setting tag: Broadcast not found.");
+                return false;
+            }
+
+            broadcast.Tag = tag;
+            Log.Debug($"Set tag of broadcast with id {broadcast.Id} to {tag}");
             RefreshBroadcast(broadcast.Player);
         }
 
@@ -546,7 +663,7 @@ public static class PlayerBroadcastExtensions
     /// <returns>True if the broadcast was successfully edited; otherwise, false.</returns>
     public static bool Edit(this Broadcast broadcast, string text)
     {
-        return MultiBroadcast.EditBroadcast(text, broadcast.Id);
+        return MultiBroadcast.EditBroadcast(text, broadcast);
     }
 
     /// <summary>
@@ -558,7 +675,7 @@ public static class PlayerBroadcastExtensions
     /// <returns>True if the broadcast was successfully edited; otherwise, false.</returns>
     public static bool Edit(this Broadcast broadcast, string text, ushort duration)
     {
-        return MultiBroadcast.EditBroadcast(text, duration, broadcast.Id);
+        return MultiBroadcast.EditBroadcast(text, duration, broadcast);
     }
 
     /// <summary>
@@ -568,7 +685,7 @@ public static class PlayerBroadcastExtensions
     /// <returns>True if the broadcast was successfully removed; otherwise, false.</returns>
     public static bool Remove(this Broadcast broadcast)
     {
-        return MultiBroadcast.RemoveBroadcast(broadcast.Id);
+        return MultiBroadcast.RemoveBroadcast(broadcast);
     }
 
     /// <summary>
@@ -579,6 +696,17 @@ public static class PlayerBroadcastExtensions
     /// <returns>True if the broadcast priority was successfully set; otherwise, false.</returns>
     public static bool SetPriority(this Broadcast broadcast, byte priority)
     {
-        return MultiBroadcast.SetPriority(priority, broadcast.Id);
+        return MultiBroadcast.SetPriority(priority, broadcast);
+    }
+
+    /// <summary>
+    ///     Sets the tag of the broadcast.
+    /// </summary>
+    /// <param name="broadcast">The broadcast to set the tag for.</param>
+    /// <param name="tag">Tag to set.</param>
+    /// <returns>True if the broadcast tag was successfully set; otherwise, false.</returns>
+    public static bool SetTag(this Broadcast broadcast, string tag)
+    {
+        return MultiBroadcast.SetTag(tag, broadcast);
     }
 }

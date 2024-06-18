@@ -10,7 +10,7 @@ public class Broadcast
     /// <summary>
     /// Gets the player to whom the broadcast is sent.
     /// </summary>
-    public Player Player { get; }
+    public Player Player { get; set; }
 
     /// <summary>
     /// Gets or sets the text of the broadcast.
@@ -33,6 +33,11 @@ public class Broadcast
     public byte Priority { get; set; }
 
     /// <summary>
+    /// Gets or sets the tag of the broadcast.
+    /// </summary>
+    public string Tag { get; set; }
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="Broadcast"/> class.
     /// </summary>
     /// <param name="player">The player to whom the broadcast is sent.</param>
@@ -40,12 +45,14 @@ public class Broadcast
     /// <param name="id">The ID of the broadcast.</param>
     /// <param name="duration">The duration of the broadcast.</param>
     /// <param name="priority">The priority of the broadcast.</param>
-    public Broadcast(Player player, string text, int id, int duration, byte priority = 0)
+    /// <param name="tag">The tag of the broadcast.</param>
+    public Broadcast(Player player, string text, int id, int duration, byte priority = 0, string tag = "")
     {
         Player = player;
         Text = text;
         Id = id;
         Priority = priority;
         Duration = duration;
+        Tag = tag;
     }
 }
