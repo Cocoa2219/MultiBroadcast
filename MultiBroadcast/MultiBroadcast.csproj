@@ -122,7 +122,6 @@
     <Compile Include="Commands\CommandUtilities.cs" />
     <Compile Include="Commands\Subcommands\SetPriority.cs" />
     <Compile Include="Config.cs" />
-    <Compile Include="Patches\ProcessQueryPatch.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Patches\BroadcastPatch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
