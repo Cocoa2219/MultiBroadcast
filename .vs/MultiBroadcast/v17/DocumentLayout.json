@@ -1,0 +1,64 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\PC\\Documents\\MultiBroadcast\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{00000000-0000-0000-0000-000000000000}|\u003CSolution\u003E|MultiBroadcast||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6089ABA1-55AC-41A7-9DC1-11228C7C8A8C}|MultiBroadcast\\MultiBroadcast.csproj|c:\\users\\pc\\documents\\multibroadcast\\multibroadcast\\plugin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6089ABA1-55AC-41A7-9DC1-11228C7C8A8C}|MultiBroadcast\\MultiBroadcast.csproj|solutionrelative:multibroadcast\\plugin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6089ABA1-55AC-41A7-9DC1-11228C7C8A8C}|MultiBroadcast\\MultiBroadcast.csproj|c:\\users\\pc\\documents\\multibroadcast\\multibroadcast\\||{B270807C-D8C6-49EB-8EBE-8E8D566637A1}|f8d6553f-f752-4dbf-acb6-f291b744a792"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 3,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Plugin.cs",
+              "DocumentMoniker": "C:\\Users\\PC\\Documents\\MultiBroadcast\\MultiBroadcast\\Plugin.cs",
+              "RelativeDocumentMoniker": "MultiBroadcast\\Plugin.cs",
+              "ToolTip": "C:\\Users\\PC\\Documents\\MultiBroadcast\\MultiBroadcast\\Plugin.cs",
+              "RelativeToolTip": "MultiBroadcast\\Plugin.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABcAAAAoAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-06-07T12:50:45.918Z",
+              "IsPinned": true,
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "MultiBroadcast",
+              "DocumentMoniker": "C:\\Users\\PC\\Documents\\MultiBroadcast\\MultiBroadcast\\MultiBroadcast.csproj",
+              "RelativeDocumentMoniker": "MultiBroadcast\\MultiBroadcast.csproj",
+              "ToolTip": "C:\\Users\\PC\\Documents\\MultiBroadcast\\MultiBroadcast\\MultiBroadcast.csproj",
+              "RelativeToolTip": "MultiBroadcast\\MultiBroadcast.csproj",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2024-06-07T12:49:40.935Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

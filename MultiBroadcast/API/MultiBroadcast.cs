@@ -30,12 +30,12 @@ public static class MultiBroadcast
 
     private static void OnLeft(LeftEventArgs ev)
     {
-        if (ev.Player == null)
+        if (ev.Player?.UserId == null)
             return;
 
         PlayerBroadcasts.Remove(ev.Player.UserId);
     }
-
+    
     private static readonly bool IsDependency;
 
     /// <summary>
@@ -62,9 +62,9 @@ public static class MultiBroadcast
     {
         Log.Debug($"AddMapBroadcast called with duration: {duration}, text: {text}, priority: {priority}, tag: {tag}");
 
-        if (duration is 0 or > 300)
+        if (duration is 0 or > 300 || string.IsNullOrWhiteSpace(text))
         {
-            Log.Debug($"AddMapBroadcast early return due to invalid duration: {duration}");
+            Log.Debug($"AddMapBroadcast early return due to invalid duration or text.");
             return null;
         }
 
@@ -108,7 +108,7 @@ public static class MultiBroadcast
         Log.Debug(
             $"AddPlayerBroadcast called for player {player?.Nickname}, duration: {duration}, text: {text}, priority: {priority}, tag: {tag}");
 
-        if (player == null || player.IsNPC || duration == 0 || duration > 300)
+        if (player == null || player.IsNPC || duration == 0 || duration > 300 || string.IsNullOrWhiteSpace(text))
         {
             Log.Debug($"AddPlayerBroadcast early return for player {player?.Nickname} due to invalid parameters.");
             return null;
@@ -168,9 +168,11 @@ public static class MultiBroadcast
 
         var writtenText = string.Join("\n", broadcasts.Select(b => b.Text));
 
-        PluginAPI.Core.Server.Broadcast.TargetClearElements(player.Connection);
-        PluginAPI.Core.Server.Broadcast.TargetAddElement(player.Connection, writtenText, 300,
-            global::Broadcast.BroadcastFlags.Normal);
+        // PluginAPI.Core.Server.Broadcast.TargetClearElements(player.Connection);
+        // PluginAPI.Core.Server.Broadcast.TargetAddElement(player.Connection, writtenText, 300,
+        //     global::Broadcast.BroadcastFlags.Truncated);
+        player.ClearBroadcasts();
+        player.Broadcast(300, writtenText, global::Broadcast.BroadcastFlags.Truncated, true);
     }
 
     /// <summary>
